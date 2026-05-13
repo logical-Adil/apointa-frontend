@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" role="img" aria-label="Appointa">
+  <rect width="36" height="36" rx="10" fill="#0F2E2B" stroke="#2DD4BF" stroke-opacity="0.35"/>
+  <path d="M11 26L18 10l7 16" stroke="#2DD4BF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13.5 20h9" stroke="#2DD4BF" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

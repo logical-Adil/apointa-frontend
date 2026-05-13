@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  // Webpack dev (`npm run dev`) is easier on Windows CPU/RAM than default Turbopack.
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ["**/node_modules/**", "**/.git/**", "**/dist/**"],
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
