@@ -1,17 +1,10 @@
-import Link from "next/link";
-import { AppointaLogo } from "@/components/appointa-logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { AnimateIn } from "@/components/animate-in";
 import { BookingChip } from "@/components/app/booking-chip";
-import {
-  FinalAuthCTA,
-  HeaderAuthCTA,
-  HeroAuthCTA,
-} from "@/components/landing/auth-cta";
+import { FinalAuthCTA, HeroAuthCTA } from "@/components/landing/auth-cta";
 
 export default function Home() {
   return (
-    <div className="relative flex min-h-full flex-1 flex-col overflow-x-hidden">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-x-hidden">
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         aria-hidden
@@ -27,24 +20,6 @@ export default function Home() {
           }}
         />
       </div>
-
-      <header className="sticky top-0 z-50 border-b border-border-subtle/80 bg-bg-base/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-2 px-3 sm:h-[4.5rem] sm:gap-3 sm:px-6 lg:px-8">
-          <Link href="/" className="rounded-xl outline-offset-4" aria-label="Appointa home">
-            <AppointaLogo priority />
-          </Link>
-          <nav className="flex items-center gap-2 sm:gap-3" aria-label="Main">
-            <a
-              href="#features"
-              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:inline"
-            >
-              Features
-            </a>
-            <ThemeToggle />
-            <HeaderAuthCTA />
-          </nav>
-        </div>
-      </header>
 
       <main className="flex flex-1 flex-col">
         <section className="mx-auto w-full max-w-[1280px] px-3 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pt-20">
@@ -148,16 +123,6 @@ export default function Home() {
           </AnimateIn>
         </section>
       </main>
-
-      <footer className="mt-auto border-t border-border-subtle py-8 sm:py-10">
-        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-6 px-3 sm:flex-row sm:px-6 lg:px-8">
-          <AppointaLogo compact className="sm:hidden" />
-          <AppointaLogo className="hidden sm:inline-flex" />
-          <p className="text-center text-sm text-text-muted sm:text-right">
-            © {new Date().getFullYear()} Appointa. Assessment prototype.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

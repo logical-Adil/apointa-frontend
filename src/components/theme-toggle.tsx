@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "appointa-theme";
+import { THEME_STORAGE_KEY } from "@/lib/theme-storage";
 
 export function ThemeToggle() {
   const [light, setLight] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  /* Sync React state with `document.documentElement` after the boot script in
+     `layout.tsx` (and localStorage). Mount gate avoids SSR/client icon mismatch. */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate + one-time read from localStorage
     setMounted(true);
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
     const isLight = stored === "light";
     setLight(isLight);
     document.documentElement.classList.toggle("light", isLight);
@@ -20,7 +22,7 @@ export function ThemeToggle() {
     const next = !light;
     setLight(next);
     document.documentElement.classList.toggle("light", next);
-    localStorage.setItem(STORAGE_KEY, next ? "light" : "dark");
+    localStorage.setItem(THEME_STORAGE_KEY, next ? "light" : "dark");
     window.dispatchEvent(new Event("appointa-theme"));
   };
 

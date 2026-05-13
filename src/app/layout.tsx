@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import Script from "next/script";
+import { SiteChrome } from "@/components/site/site-chrome";
+import { THEME_STORAGE_KEY } from "@/lib/theme-storage";
 import { AppProviders } from "@/providers/app-providers";
 import "./globals.css";
 
@@ -41,7 +44,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans antialiased bg-bg-base text-text-primary overflow-x-hidden">
-        <AppProviders>{children}</AppProviders>
+        <Script
+          id="appointa-theme-boot"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var v=localStorage.getItem(k);if(v==="light")document.documentElement.classList.add("light");else document.documentElement.classList.remove("light");}catch(e){}})();`,
+          }}
+        />
+        <AppProviders>
+          <SiteChrome>{children}</SiteChrome>
+        </AppProviders>
       </body>
     </html>
   );

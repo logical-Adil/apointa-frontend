@@ -339,6 +339,24 @@ html.light .appointa-scrollbar::-webkit-scrollbar-thumb:hover {
   animation-delay: 0.24s;
 }
 
+/**
+ * react-day-picker ships `.rdp-root { --rdp-accent-color: blue }`, which reads as
+ * a muddy purple on dark UI. Scope overrides to the booking form calendar only.
+ */
+@layer components {
+  .appointa-daypicker select.rdp-dropdown {
+    accent-color: var(--accent);
+  }
+
+  .appointa-daypicker .rdp-day.rdp-selected .rdp-day_button {
+    color: var(--accent);
+  }
+
+  .appointa-daypicker .rdp-today:not(.rdp-outside) .rdp-day_button {
+    color: var(--accent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-chat-msg-user,
   .animate-chat-msg-assistant,

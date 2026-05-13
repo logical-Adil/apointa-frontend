@@ -56,7 +56,6 @@ export function LoginForm() {
 
     try {
       await loginMutation.mutateAsync({ email: email.trim(), password });
-      // Navigation: single `router.replace` via the isAuthenticated effect above.
     } catch (error) {
       const fieldErrors = getFieldErrors(error);
       if (fieldErrors) {
@@ -68,24 +67,39 @@ export function LoginForm() {
   }
 
   const submitting = loginMutation.isPending;
+  const handingOff = loginMutation.isSuccess || isAuthenticated;
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <header>
+        <h1 className="text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-[1.65rem]">
+          Sign In
+        </h1>
+        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-text-secondary">
+          Enter your details to access your dashboard.
+        </p>
+      </header>
+
       {formError ? (
         <div
           role="alert"
-          className="rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-3 text-sm text-warning"
+          className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
         >
-          {formError}
+          <AlertIcon />
+          <span className="leading-snug">{formError}</span>
         </div>
       ) : null}
 
       <TextField
+        leadingIcon="email"
         label="Email"
         type="email"
         name="email"
         autoComplete="email"
-        placeholder="you@company.com"
+        inputMode="email"
+        spellCheck={false}
+        autoCapitalize="off"
+        placeholder="name@company.com"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         error={errors.email}
@@ -94,40 +108,55 @@ export function LoginForm() {
       />
 
       <TextField
+        leadingIcon="password"
         label="Password"
         type="password"
         name="password"
         autoComplete="current-password"
-        placeholder="Enter your password"
+        placeholder="••••••••"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         error={errors.password}
         required
         disabled={submitting}
+        labelAccessory={
+          <button
+            type="button"
+            className="text-[12px] font-medium text-accent transition-colors hover:text-accent-hover"
+            title="Password recovery is not enabled in this prototype"
+          >
+            Forgot password?
+          </button>
+        }
       />
 
       <button
         type="submit"
-        disabled={submitting}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-lg shadow-accent/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-accent/30 disabled:cursor-not-allowed disabled:opacity-70"
+        disabled={submitting || handingOff}
+        className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
       >
+        <span
+          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+          aria-hidden
+        />
         {submitting ? (
           <>
             <Spinner /> Signing in…
           </>
+        ) : handingOff ? (
+          <>
+            <CheckIcon className="size-4" /> Opening your workspace…
+          </>
         ) : (
-          "Sign in"
+          <>
+            Sign In
+            <ArrowIcon />
+          </>
         )}
       </button>
 
-      <div className="relative my-2 flex items-center text-xs uppercase tracking-widest text-text-muted">
-        <span className="h-px flex-1 bg-border-subtle" />
-        <span className="px-3">or</span>
-        <span className="h-px flex-1 bg-border-subtle" />
-      </div>
-
-      <p className="text-center text-sm text-text-secondary">
-        New to Appointa?{" "}
+      <p className="pt-1 text-center text-sm text-text-secondary">
+        Don&apos;t have an account?{" "}
         <Link
           href="/register"
           className="font-semibold text-accent transition-colors hover:text-accent-hover"
@@ -141,12 +170,7 @@ export function LoginForm() {
 
 function Spinner() {
   return (
-    <svg
-      className="size-4 animate-spin"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-    >
+    <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle
         cx="12"
         cy="12"
@@ -161,6 +185,52 @@ function Spinner() {
         strokeWidth="3"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "size-3.5" }: { className?: string }) {
+  return (
+    <svg
+      className={`${className} transition-opacity duration-150`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 5 5 9-10" />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+    </svg>
+  );
+}
+
+function AlertIcon() {
+  return (
+    <svg
+      className="mt-0.5 size-4 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" d="M12 7v6M12 16.5v.5" />
     </svg>
   );
 }

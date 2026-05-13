@@ -1,8 +1,12 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Repository layout (not a monorepo)
+
+This **frontend** lives in its **own Git repository** and deploys separately from the API. Pair it with the backend repo: [logical-Adil/appointa-backend](https://github.com/logical-Adil/appointa-backend). Locally, clone both repos side by side (sibling folders) and point the client at your API base URL via environment variables.
+
 ## Package manager
 
-Use **npm** in this folder (`npm install`, `npm run dev`). The API app in `../backend` uses **pnpm**.
+Use **npm** in this folder (`npm install`, `npm run dev`). The API uses **pnpm** in its own repo (see link above).
 
 ## Getting Started
 

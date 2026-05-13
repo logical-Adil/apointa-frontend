@@ -1,14 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import type { BookingExtract, Message } from "@/lib/app/types";
 import { BookingChip } from "@/components/app/booking-chip";
 
 /** Served from `client/public/chatbox ai.png` */
 const ASSISTANT_AVATAR_SRC = "/chatbox%20ai.png";
 
+const NEAR_BOTTOM_PX = 100;
+
+function scrollStorageKey(sessionId: string) {
+  return `appointa-chat-scroll:${sessionId}`;
+}
+
 type MessageListProps = {
+  /** Persist scroll against this id; omit persistence when null. */
+  sessionId: string | null;
   messages: Message[];
   typing: boolean;
   onScheduleFromBooking?: (booking: BookingExtract) => void;
@@ -18,19 +26,74 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-export function MessageList({ messages, typing, onScheduleFromBooking }: MessageListProps) {
+export function MessageList({
+  sessionId,
+  messages,
+  typing,
+  onScheduleFromBooking,
+}: MessageListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastSessionIdRef = useRef<string | null | undefined>(undefined);
+  const prevLenRef = useRef(0);
+  const nearBottomRef = useRef(true);
 
-  useEffect(() => {
+  const persistScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el || !sessionId) return;
+    try {
+      sessionStorage.setItem(scrollStorageKey(sessionId), String(Math.max(0, el.scrollTop)));
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [sessionId]);
+
+  const onScroll = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }, [messages.length, typing]);
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    nearBottomRef.current = dist < NEAR_BOTTOM_PX;
+    persistScroll();
+  }, [persistScroll]);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const sid = sessionId ?? null;
+
+    if (lastSessionIdRef.current !== sid) {
+      lastSessionIdRef.current = sid;
+      const raw = sid ? sessionStorage.getItem(scrollStorageKey(sid)) : null;
+      el.scrollTop = raw != null ? Number.parseInt(raw, 10) || 0 : 0;
+      prevLenRef.current = messages.length;
+      const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+      nearBottomRef.current = dist < NEAR_BOTTOM_PX;
+      return;
+    }
+
+    const grew = messages.length > prevLenRef.current;
+    prevLenRef.current = messages.length;
+
+    if (grew) {
+      const last = messages[messages.length - 1];
+      if (last?.role === "user" || nearBottomRef.current) {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      }
+      const distAfter = el.scrollHeight - el.scrollTop - el.clientHeight;
+      nearBottomRef.current = distAfter < NEAR_BOTTOM_PX;
+      return;
+    }
+
+    if (typing && nearBottomRef.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages, sessionId, typing]);
 
   return (
     <div
       ref={containerRef}
-      className="appointa-scrollbar-hidden flex min-h-0 flex-1 overflow-y-auto px-3 py-4 pr-2 sm:px-5 sm:py-5 sm:pr-3"
+      onScroll={onScroll}
+      className="appointa-scrollbar-hidden flex min-h-0 flex-1 overflow-y-auto px-3 pb-16 pt-4 pr-2 sm:px-5 sm:pb-20 sm:pt-5 sm:pr-3"
       aria-live="polite"
       aria-relevant="additions"
     >
@@ -81,8 +144,9 @@ function MessageBubble({
           {message.content}
         </div>
         {message.booking ? (
-          <div className="w-full animate-chat-chip-in">
+          <div className="mt-2.5 w-full animate-chat-chip-in">
             <BookingChip
+              className="mt-0"
               booking={message.booking}
               showIncompleteHint={Boolean(onScheduleFromBooking)}
               onUseInForm={
@@ -94,9 +158,13 @@ function MessageBubble({
           </div>
         ) : null}
         <p
-          className={`mt-1 px-1 font-mono text-[10px] text-text-muted ${
-            isUser ? "text-right" : "text-left"
-          }`}
+          className={`font-mono text-[10px] text-text-muted ${
+            isUser
+              ? "mt-2 px-1 pb-1 text-right"
+              : booking
+                ? "pl-1.5 pr-1 pt-1 text-left"
+                : "pl-1.5 pr-1 pt-2.5 text-left"
+          } ${!isUser ? "mb-5 sm:mb-6" : ""}`}
         >
           {formatTime(message.createdAt)}
           {isUser && message.status === "sending" ? " · Sending…" : null}

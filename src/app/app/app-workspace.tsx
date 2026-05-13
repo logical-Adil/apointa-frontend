@@ -106,6 +106,8 @@ export function AppWorkspace() {
     messagesQuery.isError,
   ]);
 
+  const messagesLoading = Boolean(activeSessionId) && messagesQuery.isLoading;
+
   const messages: Message[] = useMemo(() => {
     const base =
       messagesQuery.data?.items && messagesQuery.data.items.length > 0
@@ -114,7 +116,7 @@ export function AppWorkspace() {
           ? []
           : [WELCOME_MESSAGE];
     return pendingUserMessage ? [...base, pendingUserMessage] : base;
-  }, [messagesQuery.data?.items, activeSessionId, pendingUserMessage]);
+  }, [messagesQuery.data, activeSessionId, pendingUserMessage]);
 
   // --- Assistant chime ---------------------------------------------------
   // Ring a soft "tong" the moment a new assistant message appears (whether it
@@ -310,6 +312,8 @@ export function AppWorkspace() {
             messages={messages}
             typing={sendMutation.isPending}
             status={connection}
+            chatSessionId={activeSessionId}
+            messagesLoading={messagesLoading}
             onSend={handleSend}
             onScheduleFromBooking={handleScheduleFromBooking}
           />

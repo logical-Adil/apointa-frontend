@@ -74,7 +74,7 @@ export function BookingChip({
         })}
       </dl>
       {showScheduleCta ? (
-        <div className="border-t border-border-subtle px-3.5 py-2.5">
+        <div className="border-t border-border-subtle px-3.5 pb-3 pt-2.5">
           <button
             type="button"
             onClick={onUseInForm}
@@ -85,7 +85,7 @@ export function BookingChip({
           </button>
         </div>
       ) : showIncompleteHint && hasMissing ? (
-        <div className="border-t border-border-subtle bg-bg-surface/40 px-3.5 py-2.5">
+        <div className="border-t border-border-subtle bg-bg-surface/40 px-3.5 pb-3 pt-2.5">
           <p className="text-center text-[11px] leading-snug text-text-muted">
             Reply in chat until every field is filled — then you can save this to your calendar.
           </p>

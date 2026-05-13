@@ -114,6 +114,7 @@ export function BookingDateTimeFields({
       ({
         "--rdp-accent-color": "var(--accent)",
         "--rdp-accent-background-color": "var(--accent-soft)",
+        "--rdp-today-color": "var(--accent)",
         "--rdp-day-height": "2.25rem",
         "--rdp-day-width": "2.25rem",
         "--rdp-day_button-border-radius": "0.5rem",
@@ -140,12 +141,12 @@ export function BookingDateTimeFields({
           id={`${idPrefix}-date`}
           role="group"
           aria-labelledby={`${idPrefix}-date-label`}
-          style={rdpVars}
-          className="rounded-2xl border border-border-subtle bg-bg-elevated p-2 shadow-sm overflow-x-auto sm:p-3 [&_.rdp-root]:w-full [&_.rdp-months]:justify-center [&_.rdp-dropdown]:rounded-lg [&_.rdp-dropdown]:border [&_.rdp-dropdown]:border-border-subtle [&_.rdp-dropdown]:bg-bg-surface [&_.rdp-dropdown]:px-2 [&_.rdp-dropdown]:py-1.5 [&_.rdp-dropdown]:text-sm [&_.rdp-dropdown]:text-text-primary [&_.rdp-caption_label]:text-sm [&_.rdp-caption_label]:font-semibold [&_.rdp-caption_label]:text-text-primary [&_.rdp-weekday]:text-[11px] [&_.rdp-weekday]:font-medium [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-wider [&_.rdp-button_next]:rounded-lg [&_.rdp-button_next]:border [&_.rdp-button_next]:border-border-subtle [&_.rdp-button_next]:bg-bg-surface [&_.rdp-button_previous]:rounded-lg [&_.rdp-button_previous]:border [&_.rdp-button_previous]:border-border-subtle [&_.rdp-button_previous]:bg-bg-surface [&_.rdp-day_button]:text-sm [&_.rdp-day_button]:font-medium [&_.rdp-day_button]:text-text-primary [&_.rdp-day]:text-text-secondary"
+          className="appointa-daypicker rounded-2xl border border-border-subtle bg-bg-elevated p-2 shadow-sm overflow-x-auto sm:p-3 [&_.rdp-root]:w-full [&_.rdp-root]:text-text-primary [&_.rdp-months]:justify-center [&_.rdp-dropdown]:rounded-lg [&_.rdp-dropdown]:border [&_.rdp-dropdown]:border-border-subtle [&_.rdp-dropdown]:bg-bg-surface [&_.rdp-dropdown]:px-2 [&_.rdp-dropdown]:py-1.5 [&_.rdp-dropdown]:text-sm [&_.rdp-dropdown]:text-text-primary [&_.rdp-caption_label]:text-sm [&_.rdp-caption_label]:font-semibold [&_.rdp-caption_label]:text-text-primary [&_.rdp-weekday]:text-[11px] [&_.rdp-weekday]:font-medium [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-wider [&_.rdp-button_next]:rounded-lg [&_.rdp-button_next]:border [&_.rdp-button_next]:border-border-subtle [&_.rdp-button_next]:bg-bg-surface [&_.rdp-button_next]:text-text-primary [&_.rdp-button_previous]:rounded-lg [&_.rdp-button_previous]:border [&_.rdp-button_previous]:border-border-subtle [&_.rdp-button_previous]:bg-bg-surface [&_.rdp-button_previous]:text-text-primary [&_.rdp-day_button]:text-sm [&_.rdp-day_button]:font-medium [&_.rdp-day_button]:text-text-primary [&_.rdp-day]:text-text-secondary"
         >
           <DayPicker
             mode="single"
             selected={selected}
+            style={rdpVars}
             onSelect={(d) => {
               const ymd = d ? formatYmdLocal(d) : "";
               onDateChange(ymd);

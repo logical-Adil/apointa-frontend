@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
 import { useAuth, useRegister } from "@/features/auth";
 import { getErrorMessage, getFieldErrors } from "@/lib/api/errors";
@@ -15,32 +15,40 @@ type FieldErrors = {
 
 type StrengthLevel = "weak" | "fair" | "good" | "strong";
 
-function getStrength(pw: string): { level: StrengthLevel; label: string; pct: number } {
-  if (!pw) return { level: "weak", label: "", pct: 0 };
-  let score = 0;
-  if (pw.length >= 8) score++;
-  if (pw.length >= 12) score++;
-  if (/[A-Z]/.test(pw)) score++;
-  if (/[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  if (score <= 1) return { level: "weak", label: "Weak", pct: 25 };
-  if (score === 2) return { level: "fair", label: "Fair", pct: 50 };
-  if (score === 3) return { level: "good", label: "Good", pct: 75 };
-  return { level: "strong", label: "Strong", pct: 100 };
-}
-
-const strengthColors: Record<StrengthLevel, string> = {
-  weak: "bg-danger",
-  fair: "bg-warning",
-  good: "bg-info",
-  strong: "bg-success",
+type Strength = {
+  level: StrengthLevel;
+  label: string;
+  pct: number;
+  checks: { id: string; label: string; ok: boolean }[];
 };
 
-const strengthText: Record<StrengthLevel, string> = {
-  weak: "text-danger",
-  fair: "text-warning",
-  good: "text-info",
-  strong: "text-success",
+function getStrength(pw: string): Strength {
+  const checks = [
+    { id: "len", label: "At least 8 characters", ok: pw.length >= 8 },
+    { id: "upper", label: "An uppercase letter", ok: /[A-Z]/.test(pw) },
+    { id: "num", label: "A number", ok: /[0-9]/.test(pw) },
+    { id: "sym", label: "A symbol", ok: /[^A-Za-z0-9]/.test(pw) },
+  ];
+  const score = checks.filter((c) => c.ok).length + (pw.length >= 12 ? 1 : 0);
+  if (!pw) return { level: "weak", label: "", pct: 0, checks };
+  if (score <= 1) return { level: "weak", label: "Weak", pct: 25, checks };
+  if (score === 2) return { level: "fair", label: "Fair", pct: 50, checks };
+  if (score === 3) return { level: "good", label: "Good", pct: 75, checks };
+  return { level: "strong", label: "Strong", pct: 100, checks };
+}
+
+const strengthTint: Record<StrengthLevel, string> = {
+  weak: "bg-border-strong",
+  fair: "bg-accent/45",
+  good: "bg-accent/75",
+  strong: "bg-accent",
+};
+
+const strengthLabel: Record<StrengthLevel, string> = {
+  weak: "text-text-muted",
+  fair: "text-text-secondary",
+  good: "text-accent",
+  strong: "text-accent",
 };
 
 export function RegisterForm() {
@@ -62,7 +70,7 @@ export function RegisterForm() {
     router.replace("/app");
   }, [isAuthenticated, router]);
 
-  const strength = getStrength(password);
+  const strength = useMemo(() => getStrength(password), [password]);
 
   function validate(): FieldErrors {
     const next: FieldErrors = {};
@@ -99,7 +107,6 @@ export function RegisterForm() {
         email: email.trim(),
         password,
       });
-      // Navigation: single `router.replace` via the isAuthenticated effect above.
     } catch (error) {
       const fieldErrors = getFieldErrors(error);
       if (fieldErrors) {
@@ -111,23 +118,36 @@ export function RegisterForm() {
   }
 
   const submitting = registerMutation.isPending;
+  const handingOff = registerMutation.isSuccess || isAuthenticated;
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <header>
+        <h1 className="text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-[1.65rem]">
+          Sign Up
+        </h1>
+        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-text-secondary">
+          Enter your details to create your account and open your dashboard.
+        </p>
+      </header>
+
       {formError ? (
         <div
           role="alert"
-          className="rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-3 text-sm text-warning"
+          className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
         >
-          {formError}
+          <AlertIcon />
+          <span className="leading-snug">{formError}</span>
         </div>
       ) : null}
 
       <TextField
+        leadingIcon="user"
         label="Full name"
         type="text"
         name="name"
         autoComplete="name"
+        autoCapitalize="words"
         placeholder="Ada Lovelace"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -137,11 +157,15 @@ export function RegisterForm() {
       />
 
       <TextField
+        leadingIcon="email"
         label="Email"
         type="email"
         name="email"
         autoComplete="email"
-        placeholder="you@company.com"
+        inputMode="email"
+        spellCheck={false}
+        autoCapitalize="off"
+        placeholder="name@company.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         error={errors.email}
@@ -149,13 +173,14 @@ export function RegisterForm() {
         disabled={submitting}
       />
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <TextField
+          leadingIcon="password"
           label="Password"
           type="password"
           name="password"
           autoComplete="new-password"
-          placeholder="Min. 8 characters"
+          placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
@@ -163,54 +188,79 @@ export function RegisterForm() {
           disabled={submitting}
         />
 
-        {password.length > 0 ? (
-          <div className="flex items-center gap-3 pt-0.5">
-            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-border-subtle">
-              <div
-                className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${strengthColors[strength.level]}`}
-                style={{ width: `${strength.pct}%` }}
-              />
-            </div>
-            <span className={`min-w-[3rem] text-right text-xs font-medium ${strengthText[strength.level]}`}>
-              {strength.label}
+        <div className="space-y-2 pt-0.5" aria-live="polite">
+          <div className="relative h-1 overflow-hidden rounded-full bg-border-subtle">
+            <span
+              className={`absolute left-0 top-0 h-full rounded-full transition-all duration-300 ${
+                password ? strengthTint[strength.level] : "bg-transparent"
+              }`}
+              style={{ width: password ? `${strength.pct}%` : "0%" }}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`text-[11px] font-semibold uppercase tracking-wide ${
+                password ? strengthLabel[strength.level] : "text-text-muted"
+              }`}
+            >
+              {password ? strength.label : "Strength"}
             </span>
           </div>
-        ) : null}
-
-        {password.length === 0 ? (
-          <p className="text-xs text-text-muted">
-            Use 8+ characters, mix letters, numbers, and symbols for a stronger password.
-          </p>
-        ) : null}
+          <ul className="grid grid-cols-2 gap-x-3 gap-y-1">
+            {strength.checks.map((c) => (
+              <li
+                key={c.id}
+                className={`inline-flex items-center gap-1.5 text-[11px] transition-colors ${
+                  c.ok ? "text-accent" : "text-text-muted"
+                }`}
+              >
+                <span
+                  className={`inline-flex size-3 shrink-0 items-center justify-center rounded-full transition-colors ${
+                    c.ok ? "bg-accent-soft text-accent" : "bg-bg-surface text-text-muted"
+                  }`}
+                  aria-hidden
+                >
+                  {c.ok ? <MicroCheck /> : <MicroDot />}
+                </span>
+                {c.label}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <button
         type="submit"
-        disabled={submitting}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-lg shadow-accent/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-accent/30 disabled:cursor-not-allowed disabled:opacity-70"
+        disabled={submitting || handingOff}
+        className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
       >
+        <span
+          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+          aria-hidden
+        />
         {submitting ? (
           <>
             <Spinner /> Creating account…
           </>
+        ) : handingOff ? (
+          <>
+            <CheckIcon /> Opening your workspace…
+          </>
         ) : (
-          "Create account"
+          <>
+            Sign Up
+            <ArrowIcon />
+          </>
         )}
       </button>
 
-      <div className="relative my-1 flex items-center text-xs uppercase tracking-widest text-text-muted">
-        <span className="h-px flex-1 bg-border-subtle" />
-        <span className="px-3">or</span>
-        <span className="h-px flex-1 bg-border-subtle" />
-      </div>
-
-      <p className="text-center text-sm text-text-secondary">
+      <p className="pt-1 text-center text-sm text-text-secondary">
         Already have an account?{" "}
         <Link
           href="/login"
           className="font-semibold text-accent transition-colors hover:text-accent-hover"
         >
-          Sign in
+          Sign In
         </Link>
       </p>
     </form>
@@ -222,6 +272,68 @@ function Spinner() {
     <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
       <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 5 5 9-10" />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+    </svg>
+  );
+}
+
+function MicroCheck() {
+  return (
+    <svg className="size-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={4} aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 5 5 9-10" />
+    </svg>
+  );
+}
+
+function MicroDot() {
+  return (
+    <svg className="size-1.5" viewBox="0 0 8 8" aria-hidden>
+      <circle cx="4" cy="4" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function AlertIcon() {
+  return (
+    <svg
+      className="mt-0.5 size-4 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" d="M12 7v6M12 16.5v.5" />
     </svg>
   );
 }

@@ -118,10 +118,10 @@ export function AppointmentsPanel({
           <button
             type="button"
             onClick={onNewAppointment}
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-accent px-3 text-xs font-semibold text-[#0B0F13] shadow-sm shadow-accent/20 transition-colors hover:bg-accent-hover"
+            className="inline-flex h-10 min-w-[11.5rem] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 text-xs font-semibold text-[#0B0F13] shadow-sm shadow-accent/20 transition-colors hover:bg-accent-hover sm:min-w-[12.75rem] sm:px-5 sm:text-sm"
           >
             <PlusIcon />
-            New
+            New appointment
           </button>
         </div>
 
@@ -256,7 +256,7 @@ function EmptyState({ tab }: { tab: AppointmentTab }) {
     tab === "upcoming"
       ? {
           title: "Nothing on the calendar.",
-          body: "Ask Appointa for a time, or tap New above to start a booking.",
+          body: "Ask Appointa for a time, or tap New appointment above to start a booking.",
         }
       : tab === "past"
         ? {
