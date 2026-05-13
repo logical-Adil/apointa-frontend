@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { useCallback, useLayoutEffect, useRef } from "react";
-import type { BookingExtract, Message } from "@/lib/app/types";
 import { BookingChip } from "@/components/app/booking-chip";
+import { formatTime } from "@/lib/app/date-format";
+import type { BookingExtract, Message } from "@/lib/app/types";
 
 /** Served from `client/public/chatbox ai.png` */
 const ASSISTANT_AVATAR_SRC = "/chatbox%20ai.png";
@@ -21,10 +22,6 @@ type MessageListProps = {
   typing: boolean;
   onScheduleFromBooking?: (booking: BookingExtract) => void;
 };
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
 
 export function MessageList({
   sessionId,

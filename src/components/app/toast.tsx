@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { CloseIcon } from "@/components/ui/icons";
 
 type ToastProps = {
   message: string;
@@ -30,9 +31,7 @@ export function Toast({ message, onDismiss }: ToastProps) {
           aria-label="Dismiss notification"
           className="ml-1 inline-flex size-7 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-surface hover:text-text-primary"
         >
-          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <CloseIcon className="size-4" strokeWidth={2} />
         </button>
       </div>
     </div>

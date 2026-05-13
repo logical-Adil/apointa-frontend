@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Appointment, AppointmentStatus, AppointmentTab } from "@/lib/app/types";
+import { APPOINTMENT_STATUS_META } from "@/lib/app/appointment-status";
+import {
+  formatShortDate,
+  formatTime,
+  relativeFromNow,
+} from "@/lib/app/date-format";
+import type { Appointment, AppointmentTab } from "@/lib/app/types";
 
 type AppointmentsPanelProps = {
   appointments: Appointment[];
@@ -9,65 +15,11 @@ type AppointmentsPanelProps = {
   onSelectAppointment?: (appointment: Appointment) => void;
 };
 
-const STATUS_META: Record<
-  AppointmentStatus,
-  { label: string; cls: string; dot: string }
-> = {
-  pending: {
-    label: "Pending",
-    cls: "bg-warning/10 text-warning ring-warning/25",
-    dot: "bg-warning",
-  },
-  confirmed: {
-    label: "Confirmed",
-    cls: "bg-success/10 text-success ring-success/25",
-    dot: "bg-success",
-  },
-  cancelled: {
-    label: "Cancelled",
-    cls: "bg-danger/10 text-danger ring-danger/25",
-    dot: "bg-danger",
-  },
-};
-
 const TAB_DEFS: { id: AppointmentTab; label: string }[] = [
   { id: "upcoming", label: "Upcoming" },
   { id: "past", label: "Past" },
   { id: "all", label: "All" },
 ];
-
-function formatDate(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function relativeFromNow(iso: string): string {
-  const target = new Date(iso).getTime();
-  const now = Date.now();
-  const diff = target - now;
-  const minutes = Math.round(diff / (60 * 1000));
-  const abs = Math.abs(minutes);
-  const future = diff >= 0;
-
-  if (abs < 60) return future ? "in <1h" : "just now";
-  const hours = Math.round(minutes / 60);
-  if (Math.abs(hours) < 24) return future ? `in ${hours}h` : `${Math.abs(hours)}h ago`;
-  const days = Math.round(hours / 24);
-  if (Math.abs(days) < 7) return future ? `in ${days}d` : `${Math.abs(days)}d ago`;
-  const weeks = Math.round(days / 7);
-  return future ? `in ${weeks}w` : `${Math.abs(weeks)}w ago`;
-}
 
 export function AppointmentsPanel({
   appointments,
@@ -184,7 +136,7 @@ function AppointmentCard({
   appointment: Appointment;
   onSelect?: (appointment: Appointment) => void;
 }) {
-  const status = STATUS_META[appointment.status];
+  const status = APPOINTMENT_STATUS_META[appointment.status];
   const dimmed = appointment.status === "cancelled";
   const interactive = Boolean(onSelect);
 
@@ -211,7 +163,7 @@ function AppointmentCard({
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5">
             <CalendarIcon />
-            {formatDate(appointment.startAt)}
+            {formatShortDate(appointment.startAt)}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <ClockIcon />

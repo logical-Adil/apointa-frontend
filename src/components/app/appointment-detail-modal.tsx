@@ -1,55 +1,21 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
+import { CloseIcon } from "@/components/ui/icons";
+import { APPOINTMENT_STATUS_META } from "@/lib/app/appointment-status";
+import {
+  formatEndTime,
+  formatLongDate,
+  formatTime,
+} from "@/lib/app/date-format";
 import type { Appointment, AppointmentStatus } from "@/lib/app/types";
+import { useDialogA11y } from "@/lib/use-dialog-a11y";
 
 type AppointmentDetailModalProps = {
   appointment: Appointment | null;
   onClose: () => void;
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
 };
-
-const STATUS_META: Record<
-  AppointmentStatus,
-  { label: string; cls: string; dot: string }
-> = {
-  pending: {
-    label: "Pending",
-    cls: "bg-warning/10 text-warning ring-warning/25",
-    dot: "bg-warning",
-  },
-  confirmed: {
-    label: "Confirmed",
-    cls: "bg-success/10 text-success ring-success/25",
-    dot: "bg-success",
-  },
-  cancelled: {
-    label: "Cancelled",
-    cls: "bg-danger/10 text-danger ring-danger/25",
-    dot: "bg-danger",
-  },
-};
-
-function formatLongDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function endTime(iso: string, durationMin: number) {
-  const end = new Date(new Date(iso).getTime() + durationMin * 60_000);
-  return end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
 
 export function AppointmentDetailModal({
   appointment,
@@ -60,49 +26,16 @@ export function AppointmentDetailModal({
   const panelRef = useRef<HTMLDivElement>(null);
   const firstActionRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!appointment) return;
-    const t = window.setTimeout(() => firstActionRef.current?.focus(), 80);
-    return () => window.clearTimeout(t);
-  }, [appointment]);
-
-  useEffect(() => {
-    if (!appointment) return;
-
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-      if (event.key === "Tab") {
-        const panel = panelRef.current;
-        if (!panel) return;
-        const focusables = panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const active = document.activeElement as HTMLElement | null;
-        if (event.shiftKey && active === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && active === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-
-    document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [appointment, onClose]);
+  useDialogA11y({
+    open: Boolean(appointment),
+    onClose,
+    panelRef,
+    initialFocusRef: firstActionRef,
+  });
 
   if (!appointment) return null;
 
-  const status = STATUS_META[appointment.status];
+  const status = APPOINTMENT_STATUS_META[appointment.status];
   const canConfirm = appointment.status !== "confirmed";
   const canCancel = appointment.status !== "cancelled";
   const canRestore = appointment.status === "cancelled";
@@ -183,7 +116,7 @@ export function AppointmentDetailModal({
                 Ends
               </dt>
               <dd className="mt-0.5 text-sm font-medium text-text-primary">
-                {endTime(appointment.startAt, appointment.durationMin)}
+                {formatEndTime(appointment.startAt, appointment.durationMin)}
               </dd>
             </div>
           </dl>
@@ -247,21 +180,6 @@ export function AppointmentDetailModal({
         </footer>
       </div>
     </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      className="size-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      aria-hidden
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-    </svg>
   );
 }
 

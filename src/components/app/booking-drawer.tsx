@@ -8,17 +8,20 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import type { CreateAppointmentInput } from "@/features/appointments/appointments.types";
 import {
   BookingDateTimeFields,
   nearestSlotValue,
   parseLooseTime,
 } from "@/components/app/booking-datetime-fields";
+import { CloseIcon } from "@/components/ui/icons";
+import { Spinner } from "@/components/ui/spinner";
+import type { CreateAppointmentInput } from "@/features/appointments/appointments.types";
+import type { BookingExtract } from "@/lib/app/types";
 import {
   parseBookingDateToYmd,
   snapDurationMinutes,
 } from "@/lib/booking/parse-booking-from-extract";
-import type { BookingExtract } from "@/lib/app/types";
+import { useDialogA11y } from "@/lib/use-dialog-a11y";
 
 type BookingDrawerProps = {
   open: boolean;
@@ -91,46 +94,12 @@ export function BookingDrawer({
     setSubmitting(false);
   }, [open, initial]);
 
-  useEffect(() => {
-    if (!open) return;
-    const t = window.setTimeout(() => firstFieldRef.current?.focus(), 80);
-    return () => window.clearTimeout(t);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-      if (event.key === "Tab") {
-        // Lightweight focus trap.
-        const panel = panelRef.current;
-        if (!panel) return;
-        const focusables = panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const active = document.activeElement as HTMLElement | null;
-        if (event.shiftKey && active === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && active === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-
-    document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [open, onClose]);
+  useDialogA11y({
+    open,
+    onClose,
+    panelRef,
+    initialFocusRef: firstFieldRef,
+  });
 
   if (!open) return null;
 
@@ -405,43 +374,3 @@ function Field({
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg
-      className="size-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      aria-hidden
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <svg
-      className="size-4 animate-spin"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="9"
-        stroke="currentColor"
-        strokeOpacity="0.25"
-        strokeWidth="3"
-      />
-      <path
-        d="M21 12a9 9 0 00-9-9"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
