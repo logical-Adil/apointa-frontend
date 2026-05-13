@@ -6,7 +6,8 @@
  * reaching for `process.env` directly.
  */
 
-const DEFAULT_API_URL = "http://localhost:3001";
+/** Must match backend `PORT` (see `backend/.env.example`, default 5000). */
+const DEFAULT_API_URL = "http://localhost:5000";
 
 function readApiUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_URL?.trim();

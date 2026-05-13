@@ -200,3 +200,72 @@ html.light {
 .animation-delay-4 {
   animation-delay: 0.24s;
 }
+
+/* —— Site-wide loading (see `components/site-loading.tsx`) —— */
+
+.appointa-site-loading__glow {
+  background:
+    radial-gradient(ellipse 85% 60% at 50% -5%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 58%),
+    radial-gradient(ellipse 75% 55% at 105% 92%, color-mix(in srgb, var(--info) 12%, transparent), transparent 52%),
+    radial-gradient(ellipse 70% 50% at -5% 88%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 48%);
+}
+
+.appointa-site-loading__grid {
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+@keyframes appointa-site-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes appointa-site-loading-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes appointa-site-loading-shimmer {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(320%);
+    opacity: 0.35;
+  }
+}
+
+.appointa-site-loading__ring--mid {
+  animation: appointa-site-loading-spin 1.25s linear infinite;
+}
+
+.appointa-site-loading__ring--inner {
+  animation: appointa-site-loading-spin-rev 0.95s linear infinite;
+}
+
+.appointa-site-loading__bar-fill {
+  animation: appointa-site-loading-shimmer 1.45s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appointa-site-loading__ring--mid,
+  .appointa-site-loading__ring--inner,
+  .appointa-site-loading__bar-fill {
+    animation: none !important;
+  }
+
+  .appointa-site-loading__bar-fill {
+    transform: translateX(0);
+    width: 40%;
+    margin-inline: auto;
+    opacity: 0.85;
+  }
+}

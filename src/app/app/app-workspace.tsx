@@ -8,6 +8,7 @@ import { BookingDrawer } from "@/components/app/booking-drawer";
 import { ChatPanel } from "@/components/app/chat-panel";
 import { Toast } from "@/components/app/toast";
 import { TopBar } from "@/components/app/top-bar";
+import { SiteLoadingScreen } from "@/components/site-loading";
 import { useAuth } from "@/features/auth";
 import { generateAssistantReply } from "@/lib/app/ai-simulator";
 import {
@@ -144,13 +145,10 @@ export function AppWorkspace() {
 
   if (authLoading || !user) {
     return (
-      <div
-        className="flex h-[100dvh] items-center justify-center bg-bg-base"
-        aria-busy="true"
-      >
-        <span className="sr-only">Checking session…</span>
-        <span className="size-2 animate-pulse rounded-full bg-accent" aria-hidden />
-      </div>
+      <SiteLoadingScreen
+        message="Checking your session"
+        submessage="Verifying credentials with the server."
+      />
     );
   }
 
