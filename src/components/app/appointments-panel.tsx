@@ -106,8 +106,8 @@ export function AppointmentsPanel({
   return (
     <aside className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden border-border-subtle bg-bg-surface lg:border-l">
       <div className="border-b border-border-subtle bg-bg-surface/85 px-3 py-3 backdrop-blur-md sm:px-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3">
+          <div className="min-w-0">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
               Appointments
             </p>
@@ -118,7 +118,7 @@ export function AppointmentsPanel({
           <button
             type="button"
             onClick={onNewAppointment}
-            className="inline-flex h-10 min-w-[11.5rem] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 text-xs font-semibold text-[#0B0F13] shadow-sm shadow-accent/20 transition-colors hover:bg-accent-hover sm:min-w-[12.75rem] sm:px-5 sm:text-sm"
+            className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-accent px-3 text-xs font-semibold text-[#0B0F13] shadow-sm shadow-accent/20 transition-colors hover:bg-accent-hover sm:text-[13px]"
           >
             <PlusIcon />
             New appointment

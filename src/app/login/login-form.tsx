@@ -119,15 +119,6 @@ export function LoginForm() {
         error={errors.password}
         required
         disabled={submitting}
-        labelAccessory={
-          <button
-            type="button"
-            className="text-[12px] font-medium text-accent transition-colors hover:text-accent-hover"
-            title="Password recovery is not enabled in this prototype"
-          >
-            Forgot password?
-          </button>
-        }
       />
 
       <button
