@@ -29,9 +29,10 @@ export function useCurrentUser() {
         throw error;
       }
     },
-    staleTime: 5 * 60_000,
+    // Short stale window so an expired JWT does not leave "logged in" UI for long.
+    staleTime: 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 }
 

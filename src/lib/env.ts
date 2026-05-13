@@ -6,13 +6,26 @@
  * reaching for `process.env` directly.
  */
 
-/** Must match backend `PORT` (see `backend/.env.example`, default 5000). */
-const DEFAULT_API_URL = "http://localhost:5000";
+/**
+ * When `NEXT_PUBLIC_API_URL` is unset, the client uses same-origin `/v1/...`
+ * and `next.config.ts` rewrites those requests to the Express backend so the
+ * session cookie stays first-party (see BACKEND_ORIGIN).
+ */
+const DIRECT_API_FALLBACK = "http://localhost:5000";
 
 function readApiUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (!raw) return DEFAULT_API_URL;
-  return raw.replace(/\/+$/, "");
+  if (raw) return raw.replace(/\/+$/, "");
+  return "";
+}
+
+/** Used when `apiFetch` runs on the server (no relative URL base). */
+export function getServerApiUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, "") ||
+    process.env.BACKEND_ORIGIN?.trim().replace(/\/+$/, "") ||
+    DIRECT_API_FALLBACK
+  );
 }
 
 export const env = {

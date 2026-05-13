@@ -10,11 +10,12 @@ import { Toast } from "@/components/app/toast";
 import { TopBar } from "@/components/app/top-bar";
 import { SiteLoadingScreen } from "@/components/site-loading";
 import { useAuth } from "@/features/auth";
-import { generateAssistantReply } from "@/lib/app/ai-simulator";
 import {
-  seedAppointments,
-  seedMessages,
-} from "@/lib/app/seed-data";
+  useChatMessages,
+  useChatSessions,
+  useSendMessage,
+} from "@/features/chat";
+import { seedAppointments } from "@/lib/app/seed-data";
 import type {
   AppViewMode,
   Appointment,
@@ -24,15 +25,25 @@ import type {
   Message,
 } from "@/lib/app/types";
 
+const WELCOME_MESSAGE: Message = {
+  id: "welcome",
+  role: "assistant",
+  content:
+    "Hi! I'm your Appointa concierge. Tell me what you'd like to book, reschedule, or review.",
+  createdAt: new Date(0).toISOString(),
+  status: "sent",
+};
+
 export function AppWorkspace() {
   const router = useRouter();
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  const [messages, setMessages] = useState<Message[]>(seedMessages);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [pendingUserMessage, setPendingUserMessage] = useState<Message | null>(
+    null,
+  );
   const [appointments, setAppointments] =
     useState<Appointment[]>(seedAppointments);
-  const [typing, setTyping] = useState(false);
-  const [connection, setConnection] = useState<ConnectionStatus>("connecting");
   const [view, setView] = useState<AppViewMode>("chat");
   const [toast, setToast] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,40 +57,82 @@ export function AppWorkspace() {
     }
   }, [authLoading, isAuthenticated, router]);
 
+  // --- Chat data ---------------------------------------------------------
+  const sessionsQuery = useChatSessions({ enabled: isAuthenticated });
+  const messagesQuery = useChatMessages(activeSessionId ?? undefined, {
+    enabled: Boolean(activeSessionId) && isAuthenticated,
+  });
+  const sendMutation = useSendMessage();
+
+  // Pick the most recently updated session as the active one when sessions load.
   useEffect(() => {
-    if (!isAuthenticated) return;
-    const t = window.setTimeout(() => setConnection("connected"), 900);
-    return () => window.clearTimeout(t);
-  }, [isAuthenticated]);
+    if (!sessionsQuery.data || activeSessionId) return;
+    const first = sessionsQuery.data.items[0];
+    if (first) setActiveSessionId(first.id);
+  }, [sessionsQuery.data, activeSessionId]);
+
+  const connection: ConnectionStatus = useMemo(() => {
+    if (!isAuthenticated || sessionsQuery.isLoading) return "connecting";
+    if (sessionsQuery.isError || messagesQuery.isError) return "reconnecting";
+    return "connected";
+  }, [
+    isAuthenticated,
+    sessionsQuery.isLoading,
+    sessionsQuery.isError,
+    messagesQuery.isError,
+  ]);
+
+  const messages: Message[] = useMemo(() => {
+    const base =
+      messagesQuery.data?.items && messagesQuery.data.items.length > 0
+        ? messagesQuery.data.items
+        : activeSessionId
+          ? []
+          : [WELCOME_MESSAGE];
+    return pendingUserMessage ? [...base, pendingUserMessage] : base;
+  }, [messagesQuery.data?.items, activeSessionId, pendingUserMessage]);
+
+  const handleSend = useCallback(
+    (content: string) => {
+      const trimmed = content.trim();
+      if (!trimmed) return;
+
+      // Optimistic placeholder for the brand-new-session case (no cache to
+      // patch yet). When sessionId is known, the mutation hook handles the
+      // cache-level optimistic update itself.
+      if (!activeSessionId) {
+        setPendingUserMessage({
+          id: `pending-${Date.now()}`,
+          role: "user",
+          content: trimmed,
+          createdAt: new Date().toISOString(),
+          status: "sending",
+        });
+      }
+
+      sendMutation.mutate(
+        {
+          sessionId: activeSessionId ?? undefined,
+          content: trimmed,
+        },
+        {
+          onSuccess: (response) => {
+            setActiveSessionId(response.sessionId);
+            setPendingUserMessage(null);
+          },
+          onError: () => {
+            setPendingUserMessage(null);
+            setToast("Couldn't send your message. Try again in a moment.");
+          },
+        },
+      );
+    },
+    [activeSessionId, sendMutation],
+  );
 
   const user: CurrentUser | null = authUser
     ? { name: authUser.name, email: authUser.email }
     : null;
-
-  const handleSend = useCallback(
-    (content: string) => {
-      const now = new Date().toISOString();
-      const userMessage: Message = {
-        id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        role: "user",
-        content,
-        createdAt: now,
-        status: "sent",
-      };
-      setMessages((current) => [...current, userMessage]);
-
-      const delay = 600 + Math.min(1200, content.length * 12);
-      setTyping(true);
-      window.setTimeout(() => {
-        setMessages((current) => {
-          const reply = generateAssistantReply(content, current);
-          return [...current, reply];
-        });
-        setTyping(false);
-      }, delay);
-    },
-    [],
-  );
 
   const handleNewAppointment = useCallback(() => {
     setDrawerOpen(true);
@@ -167,7 +220,7 @@ export function AppWorkspace() {
         >
           <ChatPanel
             messages={messages}
-            typing={typing}
+            typing={sendMutation.isPending}
             status={connection}
             onSend={handleSend}
           />

@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { env, getServerApiUrl } from "@/lib/env";
 import { ApiError, NETWORK_ERROR_CODE, parseApiError } from "./errors";
 
 type Json = unknown;
@@ -23,6 +23,12 @@ function buildUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   const base = env.apiUrl;
   const slashed = path.startsWith("/") ? path : `/${path}`;
+  if (!base) {
+    if (typeof window === "undefined") {
+      return `${getServerApiUrl()}${slashed}`;
+    }
+    return slashed;
+  }
   return `${base}${slashed}`;
 }
 
@@ -108,7 +114,20 @@ export async function apiFetch<T = unknown>(
   cancel();
 
   if (!response.ok) {
-    throw await parseApiError(response);
+    const err = await parseApiError(response);
+    if (
+      typeof window !== "undefined" &&
+      err.isUnauthorized &&
+      !path.startsWith("/v1/auth/login") &&
+      !path.startsWith("/v1/auth/register")
+    ) {
+      void Promise.all([import("./query-client"), import("./query-keys")]).then(
+        ([{ getQueryClient }, { queryKeys }]) => {
+          getQueryClient().setQueryData(queryKeys.auth.me(), null);
+        },
+      );
+    }
+    throw err;
   }
 
   if (response.status === 204) return undefined as T;
