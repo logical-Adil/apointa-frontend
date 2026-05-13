@@ -54,6 +54,7 @@ export function UserMenu({ user }: UserMenuProps) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label={`Account menu for ${user.name}`}
         className="inline-flex size-11 items-center justify-center rounded-xl border border-border-subtle bg-bg-surface text-sm font-semibold text-text-primary transition-colors duration-200 hover:border-border-strong hover:bg-bg-elevated"
       >
         <span className="flex size-8 items-center justify-center rounded-lg bg-accent-soft text-xs font-bold text-accent ring-1 ring-accent/25">
@@ -64,21 +65,20 @@ export function UserMenu({ user }: UserMenuProps) {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-2xl border border-border-strong bg-bg-elevated shadow-xl shadow-black/30"
+          className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-2xl border border-border-strong bg-bg-elevated shadow-xl shadow-black/30 animate-fade-in"
         >
           <div className="border-b border-border-subtle px-4 py-3">
-            <p className="text-sm font-semibold text-text-primary">{user.name}</p>
-            <p className="truncate font-mono text-xs text-text-muted">{user.email}</p>
+            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
+              Signed in
+            </p>
+            <p className="mt-1 truncate text-sm font-semibold text-text-primary">
+              {user.name}
+            </p>
+            <p className="truncate font-mono text-xs text-text-muted">
+              {user.email}
+            </p>
           </div>
           <div className="flex flex-col py-1">
-            <button
-              type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-text-secondary transition-colors hover:bg-bg-surface hover:text-text-primary"
-              onClick={() => setOpen(false)}
-            >
-              <IconUser /> Profile
-            </button>
             <button
               type="button"
               role="menuitem"
@@ -91,14 +91,6 @@ export function UserMenu({ user }: UserMenuProps) {
         </div>
       ) : null}
     </div>
-  );
-}
-
-function IconUser() {
-  return (
-    <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0v.75H4.5v-.75z" />
-    </svg>
   );
 }
 

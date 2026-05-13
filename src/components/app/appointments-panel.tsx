@@ -6,6 +6,7 @@ import type { Appointment, AppointmentStatus, AppointmentTab } from "@/lib/app/t
 type AppointmentsPanelProps = {
   appointments: Appointment[];
   onNewAppointment?: () => void;
+  onSelectAppointment?: (appointment: Appointment) => void;
 };
 
 const STATUS_META: Record<
@@ -68,7 +69,11 @@ function relativeFromNow(iso: string): string {
   return future ? `in ${weeks}w` : `${Math.abs(weeks)}w ago`;
 }
 
-export function AppointmentsPanel({ appointments, onNewAppointment }: AppointmentsPanelProps) {
+export function AppointmentsPanel({
+  appointments,
+  onNewAppointment,
+  onSelectAppointment,
+}: AppointmentsPanelProps) {
   const [tab, setTab] = useState<AppointmentTab>("upcoming");
 
   const counts = useMemo(() => {
@@ -159,7 +164,10 @@ export function AppointmentsPanel({ appointments, onNewAppointment }: Appointmen
           <ol className="flex flex-col gap-2.5">
             {filtered.map((appointment) => (
               <li key={appointment.id}>
-                <AppointmentCard appointment={appointment} />
+                <AppointmentCard
+                  appointment={appointment}
+                  onSelect={onSelectAppointment}
+                />
               </li>
             ))}
           </ol>
@@ -169,16 +177,19 @@ export function AppointmentsPanel({ appointments, onNewAppointment }: Appointmen
   );
 }
 
-function AppointmentCard({ appointment }: { appointment: Appointment }) {
+function AppointmentCard({
+  appointment,
+  onSelect,
+}: {
+  appointment: Appointment;
+  onSelect?: (appointment: Appointment) => void;
+}) {
   const status = STATUS_META[appointment.status];
   const dimmed = appointment.status === "cancelled";
+  const interactive = Boolean(onSelect);
 
-  return (
-    <article
-      className={`group relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-4 transition-all duration-200 hover:border-border-strong ${
-        dimmed ? "opacity-70" : ""
-      }`}
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
@@ -217,8 +228,27 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
           {appointment.notes}
         </p>
       ) : null}
-    </article>
+    </>
   );
+
+  const baseCls = `group relative w-full overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-4 text-left transition-all duration-200 hover:border-border-strong ${
+    dimmed ? "opacity-70" : ""
+  } ${interactive ? "hover:bg-bg-surface" : ""}`;
+
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect?.(appointment)}
+        aria-label={`View ${appointment.title}`}
+        className={baseCls}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <article className={baseCls}>{content}</article>;
 }
 
 function EmptyState({
