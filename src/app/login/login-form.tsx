@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
-import { getToken, signIn } from "@/lib/auth";
+import { useAuth, useLogin } from "@/features/auth";
+import { getErrorMessage, getFieldErrors } from "@/lib/api/errors";
 
 type FieldErrors = {
   email?: string;
@@ -13,15 +14,17 @@ type FieldErrors = {
 
 export function LoginForm() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const loginMutation = useLogin();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (getToken()) router.replace("/app");
-  }, [router]);
+    if (isAuthenticated) router.replace("/app");
+  }, [isAuthenticated, router]);
 
   function validate(): FieldErrors {
     const next: FieldErrors = {};
@@ -42,24 +45,25 @@ export function LoginForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
+
     const validation = validate();
     setErrors(validation);
-    if (Object.keys(validation).length > 0) {
-      return;
-    }
+    if (Object.keys(validation).length > 0) return;
 
     try {
-      setSubmitting(true);
-      // Dummy auth: any valid email + password >= 8 chars succeeds.
-      // TODO: replace with POST /v1/auth/login once the API is wired.
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      signIn(email);
+      await loginMutation.mutateAsync({ email: email.trim(), password });
       router.replace("/app");
-    } catch {
-      setFormError("Something went wrong. Please try again.");
-      setSubmitting(false);
+    } catch (error) {
+      const fieldErrors = getFieldErrors(error);
+      if (fieldErrors) {
+        setErrors(fieldErrors as FieldErrors);
+      } else {
+        setFormError(getErrorMessage(error));
+      }
     }
   }
+
+  const submitting = loginMutation.isPending;
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
@@ -82,6 +86,7 @@ export function LoginForm() {
         onChange={(event) => setEmail(event.target.value)}
         error={errors.email}
         required
+        disabled={submitting}
       />
 
       <TextField
@@ -94,6 +99,7 @@ export function LoginForm() {
         onChange={(event) => setPassword(event.target.value)}
         error={errors.password}
         required
+        disabled={submitting}
       />
 
       <button

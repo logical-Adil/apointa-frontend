@@ -3,6 +3,11 @@ import { AppointaLogo } from "@/components/appointa-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AnimateIn } from "@/components/animate-in";
 import { BookingChip } from "@/components/app/booking-chip";
+import {
+  FinalAuthCTA,
+  HeaderAuthCTA,
+  HeroAuthCTA,
+} from "@/components/landing/auth-cta";
 
 export default function Home() {
   return (
@@ -36,18 +41,7 @@ export default function Home() {
               Features
             </a>
             <ThemeToggle />
-            <Link
-              href="/login"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary min-h-11 min-w-11 inline-flex items-center justify-center sm:min-w-0"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/20 transition-colors duration-200 hover:bg-accent-hover"
-            >
-              Get started
-            </Link>
+            <HeaderAuthCTA />
           </nav>
         </div>
       </header>
@@ -68,18 +62,7 @@ export default function Home() {
                 ambiguous.
               </p>
               <div className="animate-fade-up animation-delay-3 mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <Link
-                  href="/register"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-8 text-base font-semibold text-[#0B0F13] shadow-lg shadow-accent/25 transition-all duration-200 hover:bg-accent-hover hover:shadow-accent/30"
-                >
-                  Get started free
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border-strong bg-bg-surface px-8 text-base font-semibold text-text-primary transition-colors duration-200 hover:border-accent/40 hover:bg-bg-elevated"
-                >
-                  Sign in
-                </Link>
+                <HeroAuthCTA />
               </div>
               <ul className="animate-fade-up animation-delay-4 mt-12 flex flex-wrap gap-x-8 gap-y-3 text-sm text-text-muted">
                 <li className="flex items-center gap-2">
@@ -159,18 +142,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="relative mt-8 flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:w-auto lg:mt-0">
-                <Link
-                  href="/register"
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl bg-accent px-6 text-center text-sm font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover sm:w-auto sm:min-w-[11rem]"
-                >
-                  Create account
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl border border-border-strong px-6 text-center text-sm font-semibold text-text-primary transition-colors hover:bg-bg-surface sm:w-auto sm:min-w-[11rem]"
-                >
-                  Sign in
-                </Link>
+                <FinalAuthCTA />
               </div>
             </div>
           </AnimateIn>

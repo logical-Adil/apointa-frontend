@@ -8,11 +8,11 @@ import { BookingDrawer } from "@/components/app/booking-drawer";
 import { ChatPanel } from "@/components/app/chat-panel";
 import { Toast } from "@/components/app/toast";
 import { TopBar } from "@/components/app/top-bar";
+import { useAuth } from "@/features/auth";
 import { generateAssistantReply } from "@/lib/app/ai-simulator";
 import {
   seedAppointments,
   seedMessages,
-  seedUser,
 } from "@/lib/app/seed-data";
 import type {
   AppViewMode,
@@ -22,12 +22,11 @@ import type {
   CurrentUser,
   Message,
 } from "@/lib/app/types";
-import { getCurrentUser, getToken } from "@/lib/auth";
 
 export function AppWorkspace() {
   const router = useRouter();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [user, setUser] = useState<CurrentUser>(seedUser);
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [messages, setMessages] = useState<Message[]>(seedMessages);
   const [appointments, setAppointments] =
     useState<Appointment[]>(seedAppointments);
@@ -41,20 +40,20 @@ export function AppWorkspace() {
   >(null);
 
   useEffect(() => {
-    if (!getToken()) {
+    if (!authLoading && !isAuthenticated) {
       router.replace("/login");
-      return;
     }
-    const stored = getCurrentUser();
-    if (stored) setUser(stored);
-    setAuthChecked(true);
-  }, [router]);
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!authChecked) return;
+    if (!isAuthenticated) return;
     const t = window.setTimeout(() => setConnection("connected"), 900);
     return () => window.clearTimeout(t);
-  }, [authChecked]);
+  }, [isAuthenticated]);
+
+  const user: CurrentUser | null = authUser
+    ? { name: authUser.name, email: authUser.email }
+    : null;
 
   const handleSend = useCallback(
     (content: string) => {
@@ -127,14 +126,23 @@ export function AppWorkspace() {
     [],
   );
 
-  const upcomingCount = useMemo(() => {
-    const now = Date.now();
-    return appointments.filter(
-      (a) => new Date(a.startAt).getTime() >= now && a.status !== "cancelled",
-    ).length;
-  }, [appointments]);
+  // The "upcoming" cutoff depends on wall-clock time, which is impure in
+  // render. Track `now` in state and tick once a minute so the count stays
+  // accurate without forcing a render every paint.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const upcomingCount = useMemo(
+    () =>
+      appointments.filter(
+        (a) => new Date(a.startAt).getTime() >= now && a.status !== "cancelled",
+      ).length,
+    [appointments, now],
+  );
 
-  if (!authChecked) {
+  if (authLoading || !user) {
     return (
       <div
         className="flex h-[100dvh] items-center justify-center bg-bg-base"

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { signOut } from "@/lib/auth";
+import { useLogout } from "@/features/auth";
 import type { CurrentUser } from "@/lib/app/types";
 
 type UserMenuProps = {
@@ -19,12 +19,17 @@ function initials(name: string) {
 
 export function UserMenu({ user }: UserMenuProps) {
   const router = useRouter();
+  const logoutMutation = useLogout();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  function handleSignOut() {
-    signOut();
+  async function handleSignOut() {
     setOpen(false);
+    try {
+      await logoutMutation.mutateAsync();
+    } catch {
+      // Cookie is cleared client-side regardless; nothing else to do.
+    }
     router.replace("/login");
   }
 
@@ -82,10 +87,12 @@ export function UserMenu({ user }: UserMenuProps) {
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-danger transition-colors hover:bg-danger/10"
+              disabled={logoutMutation.isPending}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-danger transition-colors hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={handleSignOut}
             >
-              <IconExit /> Sign out
+              <IconExit />
+              {logoutMutation.isPending ? "Signing out…" : "Sign out"}
             </button>
           </div>
         </div>

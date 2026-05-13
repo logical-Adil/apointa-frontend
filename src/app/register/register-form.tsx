@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
-import { getToken, signUp } from "@/lib/auth";
+import { useAuth, useRegister } from "@/features/auth";
+import { getErrorMessage, getFieldErrors } from "@/lib/api/errors";
 
 type FieldErrors = {
   name?: string;
@@ -44,16 +45,18 @@ const strengthText: Record<StrengthLevel, string> = {
 
 export function RegisterForm() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const registerMutation = useRegister();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (getToken()) router.replace("/app");
-  }, [router]);
+    if (isAuthenticated) router.replace("/app");
+  }, [isAuthenticated, router]);
 
   const strength = getStrength(password);
 
@@ -81,22 +84,29 @@ export function RegisterForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
+
     const validation = validate();
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
 
     try {
-      setSubmitting(true);
-      // Dummy auth: stash token + user in localStorage and proceed.
-      // TODO: replace with POST /v1/auth/register once the API is wired.
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      signUp(name, email);
+      await registerMutation.mutateAsync({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
       router.replace("/app");
-    } catch {
-      setFormError("Something went wrong. Please try again.");
-      setSubmitting(false);
+    } catch (error) {
+      const fieldErrors = getFieldErrors(error);
+      if (fieldErrors) {
+        setErrors(fieldErrors as FieldErrors);
+      } else {
+        setFormError(getErrorMessage(error));
+      }
     }
   }
+
+  const submitting = registerMutation.isPending;
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
@@ -119,6 +129,7 @@ export function RegisterForm() {
         onChange={(e) => setName(e.target.value)}
         error={errors.name}
         required
+        disabled={submitting}
       />
 
       <TextField
@@ -131,6 +142,7 @@ export function RegisterForm() {
         onChange={(e) => setEmail(e.target.value)}
         error={errors.email}
         required
+        disabled={submitting}
       />
 
       <div className="flex flex-col gap-1.5">
@@ -144,6 +156,7 @@ export function RegisterForm() {
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           required
+          disabled={submitting}
         />
 
         {password.length > 0 ? (
