@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppointaLogo } from "@/components/appointa-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AnimateIn } from "@/components/animate-in";
 
 export default function Home() {
   return (
@@ -107,63 +108,71 @@ export default function Home() {
           aria-labelledby="features-heading"
         >
           <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl">
-              <h2 id="features-heading" className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-                Built for clarity, not complexity.
-              </h2>
-              <p className="mt-3 text-text-secondary sm:text-lg">
-                Three pillars that match how real teams schedule with an assistant.
-              </p>
-            </div>
+            <AnimateIn>
+              <div className="max-w-2xl">
+                <h2 id="features-heading" className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                  Built for clarity, not complexity.
+                </h2>
+                <p className="mt-3 text-text-secondary sm:text-lg">
+                  Three pillars that match how real teams schedule with an assistant.
+                </p>
+              </div>
+            </AnimateIn>
             <div className="mt-14 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-              <FeatureCard
-                title="AI understands your request"
-                description="Natural language first. The model interprets intent and surfaces structured fields—dates, duration, notes—without rigid forms up front."
-                icon={<IconSpark />}
-              />
-              <FeatureCard
-                title="Books in seconds"
-                description="Once details are clear, confirmations land in your appointment list instantly. No tab-hopping, no double entry."
-                icon={<IconBolt />}
-              />
-              <FeatureCard
-                title="Manage in one place"
-                description="Chat and calendar-style list live side by side. Filter upcoming and past visits, and reopen any thread to adjust."
-                icon={<IconLayers />}
-              />
+              <AnimateIn delay={0}>
+                <FeatureCard
+                  title="AI understands your request"
+                  description="Natural language first. The model interprets intent and surfaces structured fields—dates, duration, notes—without rigid forms up front."
+                  icon={<IconSpark />}
+                />
+              </AnimateIn>
+              <AnimateIn delay={100}>
+                <FeatureCard
+                  title="Books in seconds"
+                  description="Once details are clear, confirmations land in your appointment list instantly. No tab-hopping, no double entry."
+                  icon={<IconBolt />}
+                />
+              </AnimateIn>
+              <AnimateIn delay={200}>
+                <FeatureCard
+                  title="Manage in one place"
+                  description="Chat and calendar-style list live side by side. Filter upcoming and past visits, and reopen any thread to adjust."
+                  icon={<IconLayers />}
+                />
+              </AnimateIn>
             </div>
           </div>
         </section>
 
         <section className="mx-auto w-full max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-8 sm:p-12 lg:flex lg:items-center lg:justify-between lg:gap-12">
-            <div className="absolute right-0 top-0 h-40 w-40 translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/10 blur-2xl" aria-hidden />
-            <div className="relative max-w-xl">
-              <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-                Ready when you are.
-              </h2>
-              <p className="mt-3 text-text-secondary sm:text-lg">
-                Create an account and open your workspace. The assessment prototype keeps the stack honest:
-                Next.js, Express, PostgreSQL, and Mistral—wired end to end.
-              </p>
+          <AnimateIn>
+            <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-8 sm:p-12 lg:flex lg:items-center lg:justify-between lg:gap-12">
+              <div className="absolute right-0 top-0 h-40 w-40 translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/10 blur-2xl" aria-hidden />
+              <div className="relative max-w-xl">
+                <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                  Ready when you are.
+                </h2>
+                <p className="mt-3 text-text-secondary sm:text-lg">
+                  Create an account and open your workspace. The assessment prototype keeps the stack honest:
+                  Next.js, Express, PostgreSQL, and Mistral—wired end to end.
+                </p>
+              </div>
+              <div className="relative mt-8 flex shrink-0 flex-col gap-3 sm:flex-row lg:mt-0">
+                <Link
+                  href="/register"
+                  className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl bg-accent px-6 text-center text-sm font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover"
+                >
+                  Create account
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl border border-border-strong px-6 text-center text-sm font-semibold text-text-primary transition-colors hover:bg-bg-surface"
+                >
+                  Sign in
+                </Link>
+              </div>
             </div>
-            <div className="relative mt-8 flex shrink-0 flex-col gap-3 sm:flex-row lg:mt-0">
-              <Link
-                href="/register"
-                className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl bg-accent px-6 text-center text-sm font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover"
-              >
-                Create account
-              </Link>
-              <a
-                href="https://github.com"
-                className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl border border-border-strong px-6 text-center text-sm font-semibold text-text-primary transition-colors hover:bg-bg-surface"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on GitHub
-              </a>
-            </div>
-          </div>
+          </AnimateIn>
         </section>
       </main>
 
