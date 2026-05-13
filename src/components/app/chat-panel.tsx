@@ -2,8 +2,9 @@
 
 import { useCallback } from "react";
 import { ChatComposer } from "@/components/app/chat-composer";
-import { MessageList } from "@/components/app/message-list";
 import { ConnectionPill } from "@/components/app/connection-pill";
+import { MessageList } from "@/components/app/message-list";
+import { SoundToggle } from "@/components/app/sound-toggle";
 import type { BookingExtract, ConnectionStatus, Message } from "@/lib/app/types";
 
 type ChatPanelProps = {
@@ -33,8 +34,9 @@ export function ChatPanel({ messages, typing, status, onSend, onScheduleFromBook
             Active conversation
           </h1>
         </div>
-        <div className="shrink-0">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <ConnectionPill status={status} />
+          <SoundToggle />
         </div>
       </div>
 

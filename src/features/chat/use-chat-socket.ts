@@ -35,6 +35,15 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
     });
 
     let connectErrors = 0;
+    /** Coalesce `chat:exchange` + `chat:sessionsUpdated` (and createSession double emit) into one refetch. */
+    let sessionsBounce: ReturnType<typeof setTimeout> | null = null;
+    const scheduleSessionsRefetch = () => {
+      if (sessionsBounce) clearTimeout(sessionsBounce);
+      sessionsBounce = setTimeout(() => {
+        sessionsBounce = null;
+        void qc.invalidateQueries({ queryKey: queryKeys.chat.sessions() });
+      }, 80);
+    };
 
     const onConnect = () => {
       connectErrors = 0;
@@ -57,11 +66,11 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
         queryKeys.chat.messages(payload.sessionId),
         (prev) => mergeChatExchangeIntoCache(prev, payload),
       );
-      void qc.invalidateQueries({ queryKey: queryKeys.chat.sessions() });
+      scheduleSessionsRefetch();
     };
 
     const onSessionsUpdated = () => {
-      void qc.invalidateQueries({ queryKey: queryKeys.chat.sessions() });
+      scheduleSessionsRefetch();
     };
 
     socket.on("connect", onConnect);
@@ -71,6 +80,7 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
     socket.on("chat:sessionsUpdated", onSessionsUpdated);
 
     return () => {
+      if (sessionsBounce) clearTimeout(sessionsBounce);
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("connect_error", onConnectError);
@@ -79,7 +89,9 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
       socket.disconnect();
       setStatus("offline");
     };
-  }, [isAuthenticated, qc]);
+    // qc from useQueryClient() is stable; omitting avoids effect churn that reconnects the socket.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- qc stable from @tanstack/react-query
+  }, [isAuthenticated]);
 
   return status;
 }

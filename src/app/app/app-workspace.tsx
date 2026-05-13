@@ -23,6 +23,7 @@ import {
   useSendMessage,
 } from "@/features/chat";
 import { getErrorMessage } from "@/lib/api/errors";
+import { playNotificationTone } from "@/lib/sound/notification";
 import type {
   AppViewMode,
   Appointment,
@@ -114,6 +115,41 @@ export function AppWorkspace() {
           : [WELCOME_MESSAGE];
     return pendingUserMessage ? [...base, pendingUserMessage] : base;
   }, [messagesQuery.data?.items, activeSessionId, pendingUserMessage]);
+
+  // --- Assistant chime ---------------------------------------------------
+  // Ring a soft "tong" the moment a new assistant message appears (whether it
+  // arrived via the send mutation or a socket broadcast). Skip the initial
+  // mount and every session switch so loading history is silent.
+  const lastAssistantIdRef = useRef<string | null>(null);
+  const seededForSessionRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    seededForSessionRef.current = null;
+    lastAssistantIdRef.current = null;
+  }, [activeSessionId]);
+
+  useEffect(() => {
+    let lastAssistantId: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i].role === "assistant") {
+        lastAssistantId = messages[i].id;
+        break;
+      }
+    }
+    if (!lastAssistantId) return;
+
+    const sessionKey = activeSessionId ?? "__welcome__";
+    if (seededForSessionRef.current !== sessionKey) {
+      seededForSessionRef.current = sessionKey;
+      lastAssistantIdRef.current = lastAssistantId;
+      return;
+    }
+
+    if (lastAssistantId !== lastAssistantIdRef.current) {
+      lastAssistantIdRef.current = lastAssistantId;
+      playNotificationTone();
+    }
+  }, [messages, activeSessionId]);
 
   const handleSend = useCallback(
     (content: string) => {

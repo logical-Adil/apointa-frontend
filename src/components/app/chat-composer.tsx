@@ -20,15 +20,31 @@ type ChatComposerProps = {
 const MAX_CHARS = 2000;
 
 export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
-  function ChatComposer({ status, onSend, disabled = false }, _ref) {
+  function ChatComposer({ status, onSend, disabled = false }, forwardedRef) {
     const [value, setValue] = useState("");
+    const [isMultiline, setIsMultiline] = useState(false);
     const innerRef = useRef<HTMLTextAreaElement>(null);
 
+    const setTextareaRef = useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        innerRef.current = node;
+        if (typeof forwardedRef === "function") {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          forwardedRef.current = node;
+        }
+      },
+      [forwardedRef],
+    );
+
+    /** Single-line: vertically center text + send. Wrapped/grows: pin send to bottom. */
     const resize = useCallback(() => {
       const el = innerRef.current;
       if (!el) return;
       el.style.height = "auto";
-      el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
+      const next = Math.min(el.scrollHeight, 180);
+      el.style.height = `${next}px`;
+      setIsMultiline(next > 52);
     }, []);
 
     useEffect(() => {
@@ -56,12 +72,16 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
       <div className="shrink-0 border-t border-border-subtle bg-bg-elevated/80 px-3 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-2">
           <div
-            className={`flex items-end gap-2 rounded-2xl border bg-bg-surface px-3 py-2.5 transition-colors ${
-              overLimit ? "border-danger/60" : "border-border-subtle focus-within:border-accent"
+            className={`appointa-compose-surface flex min-h-[52px] gap-2.5 rounded-xl border bg-bg-surface px-3 py-2.5 ring-0 transition-[border-color,box-shadow,ring] duration-200 ${
+              isMultiline ? "items-end" : "items-center"
+            } ${
+              overLimit
+                ? "border-danger/60"
+                : "border-border-subtle focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-accent/22"
             }`}
           >
             <textarea
-              ref={innerRef}
+              ref={setTextareaRef}
               rows={1}
               value={value}
               onChange={(e) => setValue(e.target.value)}
@@ -69,14 +89,16 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
               placeholder="Message your concierge…"
               aria-label="Message"
               disabled={disabled}
-              className="max-h-[180px] min-h-[36px] flex-1 resize-none bg-transparent text-sm leading-relaxed text-text-primary placeholder:text-text-muted outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              className="appointa-scrollbar max-h-[180px] min-h-[2.5rem] flex-1 resize-none bg-transparent px-1 py-2.5 text-sm leading-[1.65] text-text-primary outline-none focus:outline-none focus-visible:outline-none placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-60"
             />
             <button
               type="button"
               onClick={send}
               disabled={!canSend}
               aria-label="Send message"
-              className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent text-[#0B0F13] transition-all duration-150 hover:bg-accent-hover disabled:cursor-not-allowed disabled:bg-bg-elevated disabled:text-text-muted"
+              className={`inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-[#0B0F13] outline-none transition-[transform,background-color,box-shadow] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface hover:enabled:bg-accent-hover hover:enabled:scale-[1.03] active:enabled:scale-[0.94] disabled:cursor-not-allowed disabled:bg-bg-elevated disabled:text-text-muted disabled:hover:scale-100 ${
+                isMultiline ? "mb-px" : ""
+              }`}
             >
               <SendIcon />
             </button>

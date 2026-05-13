@@ -5,10 +5,13 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // Treat data fresh for 30s; tune per-feature when needed.
-        staleTime: 30_000,
-        gcTime: 5 * 60_000,
+        /** Fresh long enough that remounts / parent re-renders reuse cache instead of firing the same GET again. */
+        staleTime: 2 * 60_000,
+        gcTime: 30 * 60_000,
         refetchOnWindowFocus: false,
+        /** While data is still "fresh" (within staleTime), mounting does not trigger another network request. */
+        refetchOnMount: true,
+        refetchOnReconnect: true,
         retry: (failureCount, error) => {
           if (error instanceof ApiError) {
             if (error.isClientError) return false;

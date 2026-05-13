@@ -19,6 +19,8 @@ export function useAppointments(
     queryKey: queryKeys.appointments.list(filters),
     queryFn: () => apptsApi.listAppointments(filters),
     enabled: options?.enabled ?? true,
+    staleTime: 3 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -30,6 +32,8 @@ export function useAppointment(
     queryKey: queryKeys.appointments.detail(id ?? "__none__"),
     queryFn: () => apptsApi.getAppointment(id as string),
     enabled: Boolean(id) && (options?.enabled ?? true),
+    staleTime: 3 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 

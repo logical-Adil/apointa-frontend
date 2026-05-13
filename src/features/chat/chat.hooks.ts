@@ -19,6 +19,12 @@ export function useChatSessions(options?: { enabled?: boolean }) {
     queryKey: queryKeys.chat.sessions(),
     queryFn: chatApi.listSessions,
     enabled: options?.enabled ?? true,
+    /**
+     * List updates only from socket debounced invalidation + create-session mutation.
+     * Do not time-expire: avoids duplicate GET /sessions on Strict Mode remount / re-render.
+     */
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 60 * 60_000,
   });
 }
 
@@ -30,6 +36,12 @@ export function useChatMessages(
     queryKey: queryKeys.chat.messages(sessionId ?? "__none__"),
     queryFn: () => chatApi.getMessages(sessionId as string),
     enabled: Boolean(sessionId) && (options?.enabled ?? true),
+    /**
+     * Transcript is updated via mutation + socket `setQueryData`; no need to refetch on remount.
+     * `invalidateQueries` for messages (if added later) still forces a refetch.
+     */
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 60 * 60_000,
   });
 }
 
@@ -105,7 +117,9 @@ export function useSendMessage() {
             dropTempId: context?.tempId,
           }),
       );
-      qc.invalidateQueries({ queryKey: queryKeys.chat.sessions() });
+      // Session list refresh: rely on `chat:exchange` (+ debounced invalidation in
+      // `useChatSocket`). Invalidating here as well caused duplicate GET /sessions
+      // (mutation + socket) for every send.
     },
   });
 }

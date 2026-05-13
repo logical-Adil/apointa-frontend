@@ -157,7 +157,7 @@ export function AppointmentsPanel({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3 sm:px-4">
+      <div className="appointa-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3 pr-1.5 sm:px-4 sm:pr-2">
         {filtered.length === 0 ? (
           <EmptyState tab={tab} />
         ) : (
