@@ -3,6 +3,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { ReactNode } from "react";
+import { AuthProvider } from "@/features/auth";
 import { getQueryClient } from "@/lib/api/query-client";
 import { env } from "@/lib/env";
 
@@ -16,10 +17,12 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      {env.isDev ? (
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-      ) : null}
+      <AuthProvider>
+        {children}
+        {env.isDev ? (
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+        ) : null}
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

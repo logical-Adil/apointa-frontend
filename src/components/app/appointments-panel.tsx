@@ -104,7 +104,7 @@ export function AppointmentsPanel({
   }, [appointments, tab]);
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col overflow-hidden border-border-subtle bg-bg-surface lg:border-l lg:max-w-none">
+    <aside className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden border-border-subtle bg-bg-surface lg:border-l">
       <div className="border-b border-border-subtle bg-bg-surface/85 px-3 py-3 backdrop-blur-md sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -145,7 +145,7 @@ export function AppointmentsPanel({
               >
                 {t.label}
                 <span
-                  className={`inline-flex min-w-[1.25rem] justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                  className={`inline-flex min-w-[1.75rem] justify-center rounded-full px-1.5 text-[10px] font-bold tabular-nums ${
                     active ? "bg-accent/15 text-accent" : "bg-bg-surface text-text-muted"
                   }`}
                 >
@@ -157,9 +157,9 @@ export function AppointmentsPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-3 sm:px-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3 sm:px-4">
         {filtered.length === 0 ? (
-          <EmptyState tab={tab} onNewAppointment={onNewAppointment} />
+          <EmptyState tab={tab} />
         ) : (
           <ol className="flex flex-col gap-2.5">
             {filtered.map((appointment) => (
@@ -251,48 +251,33 @@ function AppointmentCard({
   return <article className={baseCls}>{content}</article>;
 }
 
-function EmptyState({
-  tab,
-  onNewAppointment,
-}: {
-  tab: AppointmentTab;
-  onNewAppointment?: () => void;
-}) {
+function EmptyState({ tab }: { tab: AppointmentTab }) {
   const copy =
     tab === "upcoming"
       ? {
           title: "Nothing on the calendar.",
-          body: "Ask Appointa for a time, or start a new booking from scratch.",
-          cta: "New appointment",
+          body: "Ask Appointa for a time, or tap New above to start a booking.",
         }
       : tab === "past"
         ? {
             title: "No past appointments.",
             body: "Once you complete or cancel an appointment it'll show up here.",
-            cta: null,
           }
         : {
             title: "It's all clear.",
             body: "Use the chat to book a session — Appointa handles the rest.",
-            cta: "New appointment",
           };
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-soft ring-1 ring-accent/20">
+    <div className="flex w-full min-w-0 flex-1 flex-col items-center justify-center px-4 py-10 text-center sm:px-6 sm:py-12">
+      <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent-soft ring-1 ring-accent/20">
         <CalendarIcon className="size-5 text-accent" />
       </div>
-      <h3 className="mt-4 text-sm font-semibold text-text-primary">{copy.title}</h3>
-      <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-text-secondary">{copy.body}</p>
-      {copy.cta ? (
-        <button
-          type="button"
-          onClick={onNewAppointment}
-          className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-accent px-4 text-xs font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover"
-        >
-          <PlusIcon />
-          {copy.cta}
-        </button>
-      ) : null}
+      <h3 className="mt-4 w-full max-w-[16rem] text-sm font-semibold text-text-primary">
+        {copy.title}
+      </h3>
+      <p className="mt-1.5 w-full max-w-[16rem] text-xs leading-relaxed text-text-secondary">
+        {copy.body}
+      </p>
     </div>
   );
 }

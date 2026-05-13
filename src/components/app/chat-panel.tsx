@@ -4,16 +4,17 @@ import { useCallback } from "react";
 import { ChatComposer } from "@/components/app/chat-composer";
 import { MessageList } from "@/components/app/message-list";
 import { ConnectionPill } from "@/components/app/connection-pill";
-import type { ConnectionStatus, Message } from "@/lib/app/types";
+import type { BookingExtract, ConnectionStatus, Message } from "@/lib/app/types";
 
 type ChatPanelProps = {
   messages: Message[];
   typing: boolean;
   status: ConnectionStatus;
   onSend: (content: string) => void;
+  onScheduleFromBooking?: (booking: BookingExtract) => void;
 };
 
-export function ChatPanel({ messages, typing, status, onSend }: ChatPanelProps) {
+export function ChatPanel({ messages, typing, status, onSend, onScheduleFromBooking }: ChatPanelProps) {
   const handleSend = useCallback(
     (content: string) => {
       onSend(content);
@@ -39,7 +40,7 @@ export function ChatPanel({ messages, typing, status, onSend }: ChatPanelProps) 
 
       <div className="flex min-h-0 flex-1 flex-col p-2 sm:p-3 lg:p-4">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border-subtle bg-bg-surface shadow-[0_1px_0_0_var(--border-subtle)] ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:rounded-2xl">
-          <MessageList messages={messages} typing={typing} />
+          <MessageList messages={messages} typing={typing} onScheduleFromBooking={onScheduleFromBooking} />
           <ChatComposer status={status} onSend={handleSend} />
         </div>
       </div>

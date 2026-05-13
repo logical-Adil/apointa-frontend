@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppointmentDetailModal } from "@/components/app/appointment-detail-modal";
 import { AppointmentsPanel } from "@/components/app/appointments-panel";
 import { BookingDrawer } from "@/components/app/booking-drawer";
@@ -11,15 +11,23 @@ import { TopBar } from "@/components/app/top-bar";
 import { SiteLoadingScreen } from "@/components/site-loading";
 import { useAuth } from "@/features/auth";
 import {
+  useAppointments,
+  useCreateAppointment,
+  useUpdateAppointmentStatus,
+} from "@/features/appointments";
+import type { CreateAppointmentInput } from "@/features/appointments/appointments.types";
+import {
   useChatMessages,
   useChatSessions,
+  useChatSocket,
   useSendMessage,
 } from "@/features/chat";
-import { seedAppointments } from "@/lib/app/seed-data";
+import { getErrorMessage } from "@/lib/api/errors";
 import type {
   AppViewMode,
   Appointment,
   AppointmentStatus,
+  BookingExtract,
   ConnectionStatus,
   CurrentUser,
   Message,
@@ -42,19 +50,28 @@ export function AppWorkspace() {
   const [pendingUserMessage, setPendingUserMessage] = useState<Message | null>(
     null,
   );
-  const [appointments, setAppointments] =
-    useState<Appointment[]>(seedAppointments);
   const [view, setView] = useState<AppViewMode>("chat");
   const [toast, setToast] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerInitial, setDrawerInitial] = useState<BookingExtract | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<
     string | null
   >(null);
+  const didNavigateToLogin = useRef(false);
+
+  const appointmentsQuery = useAppointments(undefined, {
+    enabled: isAuthenticated,
+  });
+  const createAppointmentMutation = useCreateAppointment();
+  const updateAppointmentStatusMutation = useUpdateAppointmentStatus();
+
+  const appointments = appointmentsQuery.data?.items ?? [];
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace("/login");
-    }
+    if (authLoading || isAuthenticated) return;
+    if (didNavigateToLogin.current) return;
+    didNavigateToLogin.current = true;
+    router.replace("/login");
   }, [authLoading, isAuthenticated, router]);
 
   // --- Chat data ---------------------------------------------------------
@@ -63,6 +80,7 @@ export function AppWorkspace() {
     enabled: Boolean(activeSessionId) && isAuthenticated,
   });
   const sendMutation = useSendMessage();
+  const socketStatus = useChatSocket(isAuthenticated);
 
   // Pick the most recently updated session as the active one when sessions load.
   useEffect(() => {
@@ -72,11 +90,16 @@ export function AppWorkspace() {
   }, [sessionsQuery.data, activeSessionId]);
 
   const connection: ConnectionStatus = useMemo(() => {
-    if (!isAuthenticated || sessionsQuery.isLoading) return "connecting";
+    if (!isAuthenticated) return "offline";
+    if (socketStatus === "connecting") return "connecting";
     if (sessionsQuery.isError || messagesQuery.isError) return "reconnecting";
-    return "connected";
+    if (socketStatus === "reconnecting") return "reconnecting";
+    if (socketStatus === "connected") return "connected";
+    if (sessionsQuery.isLoading) return "connecting";
+    return "offline";
   }, [
     isAuthenticated,
+    socketStatus,
     sessionsQuery.isLoading,
     sessionsQuery.isError,
     messagesQuery.isError,
@@ -117,8 +140,8 @@ export function AppWorkspace() {
         },
         {
           onSuccess: (response) => {
-            setActiveSessionId(response.sessionId);
             setPendingUserMessage(null);
+            setActiveSessionId(response.sessionId);
           },
           onError: () => {
             setPendingUserMessage(null);
@@ -135,19 +158,34 @@ export function AppWorkspace() {
     : null;
 
   const handleNewAppointment = useCallback(() => {
+    setDrawerInitial(null);
     setDrawerOpen(true);
   }, []);
 
   const handleCloseDrawer = useCallback(() => {
     setDrawerOpen(false);
+    setDrawerInitial(null);
   }, []);
 
-  const handleCreateAppointment = useCallback((appointment: Appointment) => {
-    setAppointments((current) => [...current, appointment]);
-    setDrawerOpen(false);
-    setView("appointments");
-    setToast(`Added “${appointment.title}” to your appointments.`);
+  const handleScheduleFromBooking = useCallback((booking: BookingExtract) => {
+    setDrawerInitial(booking);
+    setDrawerOpen(true);
+    setView("chat");
   }, []);
+
+  const handleCreateAppointment = useCallback(
+    async (input: CreateAppointmentInput) => {
+      try {
+        await createAppointmentMutation.mutateAsync(input);
+        setView("appointments");
+        setToast(`Added “${input.title}” to your schedule.`);
+      } catch (err) {
+        setToast(getErrorMessage(err));
+        throw new Error("create_failed");
+      }
+    },
+    [createAppointmentMutation],
+  );
 
   const handleSelectAppointment = useCallback((appointment: Appointment) => {
     setSelectedAppointmentId(appointment.id);
@@ -158,16 +196,12 @@ export function AppWorkspace() {
   }, []);
 
   const handleUpdateStatus = useCallback(
-    (id: string, status: AppointmentStatus) => {
-      let updated: Appointment | undefined;
-      setAppointments((current) =>
-        current.map((a) => {
-          if (a.id !== id) return a;
-          updated = { ...a, status };
-          return updated;
-        }),
-      );
-      if (updated) {
+    async (id: string, status: AppointmentStatus) => {
+      try {
+        const updated = await updateAppointmentStatusMutation.mutateAsync({
+          id,
+          status,
+        });
         const msg =
           status === "confirmed"
             ? `Confirmed “${updated.title}”.`
@@ -175,9 +209,11 @@ export function AppWorkspace() {
               ? `Cancelled “${updated.title}”.`
               : `Restored “${updated.title}” to pending.`;
         setToast(msg);
+      } catch (err) {
+        setToast(getErrorMessage(err));
       }
     },
-    [],
+    [updateAppointmentStatusMutation],
   );
 
   // The "upcoming" cutoff depends on wall-clock time, which is impure in
@@ -195,6 +231,22 @@ export function AppWorkspace() {
       ).length,
     [appointments, now],
   );
+
+  useEffect(() => {
+    if (!appointmentsQuery.isError) return;
+    setToast("Could not load appointments from the server.");
+  }, [appointmentsQuery.isError]);
+
+  const selectedAppointment = useMemo(
+    () => appointments.find((a) => a.id === selectedAppointmentId) ?? null,
+    [appointments, selectedAppointmentId],
+  );
+
+  useEffect(() => {
+    if (selectedAppointmentId && !selectedAppointment) {
+      setSelectedAppointmentId(null);
+    }
+  }, [selectedAppointmentId, selectedAppointment]);
 
   if (authLoading || !user) {
     return (
@@ -214,20 +266,21 @@ export function AppWorkspace() {
         appointmentsCount={upcomingCount}
       />
 
-      <main className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col overflow-hidden lg:flex-row">
+      <main className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col overflow-hidden lg:flex-row lg:items-stretch">
         <div
-          className={`flex h-full min-h-0 w-full min-w-0 flex-1 flex-col ${view === "chat" ? "" : "hidden"} lg:flex`}
+          className={`flex h-full min-h-0 w-full min-w-0 flex-1 flex-col lg:min-w-0 ${view === "chat" ? "" : "hidden"} lg:flex`}
         >
           <ChatPanel
             messages={messages}
             typing={sendMutation.isPending}
             status={connection}
             onSend={handleSend}
+            onScheduleFromBooking={handleScheduleFromBooking}
           />
         </div>
 
         <div
-          className={`flex h-full min-h-0 w-full min-w-0 flex-col ${view === "appointments" ? "flex" : "hidden"} lg:flex lg:w-auto lg:max-w-[min(440px,44vw)] lg:shrink-0`}
+          className={`flex h-full min-h-0 w-full min-w-0 flex-col ${view === "appointments" ? "flex" : "hidden"} lg:flex lg:w-[min(440px,44vw)] lg:min-w-[min(440px,44vw)] lg:max-w-[min(440px,44vw)] lg:shrink-0 lg:grow-0`}
         >
           <AppointmentsPanel
             appointments={appointments}
@@ -240,13 +293,12 @@ export function AppWorkspace() {
       <BookingDrawer
         open={drawerOpen}
         onClose={handleCloseDrawer}
-        onSubmit={handleCreateAppointment}
+        initial={drawerInitial}
+        onCreate={handleCreateAppointment}
       />
 
       <AppointmentDetailModal
-        appointment={
-          appointments.find((a) => a.id === selectedAppointmentId) ?? null
-        }
+        appointment={selectedAppointment}
         onClose={handleCloseDetail}
         onUpdateStatus={handleUpdateStatus}
       />

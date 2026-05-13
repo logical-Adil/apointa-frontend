@@ -28,6 +28,22 @@ export function getServerApiUrl(): string {
   );
 }
 
+/**
+ * Base URL for Socket.io (browser). Prefer same-origin when the API uses
+ * Next.js rewrites so the session cookie is sent. Override with
+ * `NEXT_PUBLIC_SOCKET_URL` when needed.
+ */
+export function getChatSocketUrl(): string {
+  const explicit =
+    process.env.NEXT_PUBLIC_SOCKET_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, "");
+  if (typeof window !== "undefined" && !readApiUrl()) {
+    return window.location.origin;
+  }
+  return DIRECT_API_FALLBACK;
+}
+
 export const env = {
   apiUrl: readApiUrl(),
   isDev: process.env.NODE_ENV !== "production",

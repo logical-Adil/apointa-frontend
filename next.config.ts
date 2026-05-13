@@ -20,7 +20,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const backend =
       process.env.BACKEND_ORIGIN?.replace(/\/+$/, "") || "http://localhost:5000";
-    return [{ source: "/v1/:path*", destination: `${backend}/v1/:path*` }];
+    return [
+      { source: "/v1/:path*", destination: `${backend}/v1/:path*` },
+      { source: "/socket.io/:path*", destination: `${backend}/socket.io/:path*` },
+    ];
   },
   // Webpack dev (`npm run dev`) is easier on Windows CPU/RAM than default Turbopack.
   webpack: (config, { dev }) => {

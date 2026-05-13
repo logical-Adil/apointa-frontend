@@ -6,3 +6,4 @@ export {
   useCreateChatSession,
   useSendMessage,
 } from "./chat.hooks";
+export { useChatSocket } from "./use-chat-socket";

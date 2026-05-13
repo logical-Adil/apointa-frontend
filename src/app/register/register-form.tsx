@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
 import { useAuth, useRegister } from "@/features/auth";
 import { getErrorMessage, getFieldErrors } from "@/lib/api/errors";
@@ -53,9 +53,13 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const didNavigateToApp = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated) router.replace("/app");
+    if (!isAuthenticated) return;
+    if (didNavigateToApp.current) return;
+    didNavigateToApp.current = true;
+    router.replace("/app");
   }, [isAuthenticated, router]);
 
   const strength = getStrength(password);
@@ -95,7 +99,7 @@ export function RegisterForm() {
         email: email.trim(),
         password,
       });
-      router.replace("/app");
+      // Navigation: single `router.replace` via the isAuthenticated effect above.
     } catch (error) {
       const fieldErrors = getFieldErrors(error);
       if (fieldErrors) {

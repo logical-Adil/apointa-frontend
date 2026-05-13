@@ -8,19 +8,24 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import type { Appointment, BookingExtract } from "@/lib/app/types";
+import type { CreateAppointmentInput } from "@/features/appointments/appointments.types";
 import {
   BookingDateTimeFields,
   nearestSlotValue,
   parseLooseTime,
 } from "@/components/app/booking-datetime-fields";
+import {
+  parseBookingDateToYmd,
+  snapDurationMinutes,
+} from "@/lib/booking/parse-booking-from-extract";
+import type { BookingExtract } from "@/lib/app/types";
 
 type BookingDrawerProps = {
   open: boolean;
   onClose: () => void;
   /** Optional pre-fill from an AI-extracted booking. */
   initial?: BookingExtract | null;
-  onSubmit: (appointment: Appointment) => void;
+  onCreate: (input: CreateAppointmentInput) => Promise<void>;
 };
 
 type DraftErrors = Partial<
@@ -33,16 +38,21 @@ function parseExtractToInputs(initial?: BookingExtract | null) {
   const out = { date: "", time: "", duration: 30 };
   if (!initial) return out;
 
-  if (initial.date && /^\d{4}-\d{2}-\d{2}$/.test(initial.date)) {
-    out.date = initial.date;
-  }
+  const fromIso =
+    initial.date && /^\d{4}-\d{2}-\d{2}$/.test(initial.date.trim())
+      ? initial.date.trim()
+      : "";
+  out.date = fromIso || parseBookingDateToYmd(initial.date);
+
   const loose = parseLooseTime(initial.time);
   out.time = loose ? nearestSlotValue(loose) : "";
   if (initial.duration) {
     const m = initial.duration.match(/(\d{1,3})/);
     if (m) {
       const n = Number(m[1]);
-      if (n >= 5 && n <= 600) out.duration = n;
+      if (n >= 5 && n <= 600) {
+        out.duration = snapDurationMinutes(n, DURATION_OPTIONS);
+      }
     }
   }
   return out;
@@ -52,7 +62,7 @@ export function BookingDrawer({
   open,
   onClose,
   initial,
-  onSubmit,
+  onCreate,
 }: BookingDrawerProps) {
   const titleId = useId();
   const firstFieldRef = useRef<HTMLInputElement>(null);
@@ -70,12 +80,13 @@ export function BookingDrawer({
   useEffect(() => {
     if (!open) return;
     const parsed = parseExtractToInputs(initial);
-    setTitle("");
-    setService(initial?.service ?? "");
+    const svc = initial?.service?.trim() ?? "";
+    setTitle(svc);
+    setService(svc);
     setDate(parsed.date);
     setTime(parsed.time);
     setDuration(parsed.duration);
-    setNotes(initial?.notes ?? "");
+    setNotes(initial?.notes?.trim() ?? "");
     setErrors({});
     setSubmitting(false);
   }, [open, initial]);
@@ -139,20 +150,39 @@ export function BookingDrawer({
     if (Object.keys(v).length > 0) return;
 
     setSubmitting(true);
-    // Mock network delay so the action feels real.
-    await new Promise((resolve) => setTimeout(resolve, 450));
+    const start = new Date(`${date}T${time}:00`);
+    if (Number.isNaN(start.getTime())) {
+      setErrors((e) => ({ ...e, date: "Invalid date or time.", time: "Invalid date or time." }));
+      setSubmitting(false);
+      return;
+    }
 
-    const startAt = new Date(`${date}T${time}:00`).toISOString();
-    const appointment: Appointment = {
-      id: `ap-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    if (start.getTime() < Date.now() - 30_000) {
+      setErrors((e) => ({
+        ...e,
+        date: "Choose a date and time in the future.",
+        time: "Choose a date and time in the future.",
+      }));
+      setSubmitting(false);
+      return;
+    }
+
+    const input: CreateAppointmentInput = {
       title: title.trim() || service.trim(),
       service: service.trim(),
-      startAt,
+      startAt: start.toISOString(),
       durationMin: duration,
-      status: "pending",
       notes: notes.trim() || undefined,
     };
-    onSubmit(appointment);
+
+    try {
+      await onCreate(input);
+      onClose();
+    } catch {
+      // Parent surfaces errors (toast); keep drawer open so the user can retry.
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -177,14 +207,19 @@ export function BookingDrawer({
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border-subtle bg-bg-surface/70 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-4">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
-              New booking
+              {initial ? "From your conversation" : "New booking"}
             </p>
             <h2
               id={titleId}
               className="mt-0.5 text-base font-semibold tracking-tight text-text-primary sm:text-lg"
             >
-              Schedule an appointment
+              {initial ? "Review & save appointment" : "Schedule an appointment"}
             </h2>
+            {initial ? (
+              <p className="mt-1 text-xs leading-snug text-text-secondary">
+                Fields below are prefilled from the chat. Adjust anything, then save.
+              </p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -308,6 +343,8 @@ export function BookingDrawer({
                 <>
                   <Spinner /> Creating…
                 </>
+              ) : initial ? (
+                "Save appointment"
               ) : (
                 "Create appointment"
               )}

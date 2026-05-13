@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Message } from "@/lib/app/types";
+import type { BookingExtract, Message } from "@/lib/app/types";
 import { BookingChip } from "@/components/app/booking-chip";
 
 type MessageListProps = {
   messages: Message[];
   typing: boolean;
+  onScheduleFromBooking?: (booking: BookingExtract) => void;
 };
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-export function MessageList({ messages, typing }: MessageListProps) {
+export function MessageList({ messages, typing, onScheduleFromBooking }: MessageListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export function MessageList({ messages, typing }: MessageListProps) {
       <ol className="mx-auto flex w-full max-w-3xl flex-col gap-5">
         {messages.map((m) => (
           <li key={m.id}>
-            <MessageBubble message={m} />
+            <MessageBubble message={m} onScheduleFromBooking={onScheduleFromBooking} />
           </li>
         ))}
         {typing ? (
@@ -45,8 +46,18 @@ export function MessageList({ messages, typing }: MessageListProps) {
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({
+  message,
+  onScheduleFromBooking,
+}: {
+  message: Message;
+  onScheduleFromBooking?: (booking: BookingExtract) => void;
+}) {
   const isUser = message.role === "user";
+  const canUseBooking =
+    !isUser &&
+    message.booking &&
+    onScheduleFromBooking;
   return (
     <div className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser ? <AssistantAvatar /> : null}
@@ -62,7 +73,12 @@ function MessageBubble({ message }: { message: Message }) {
         </div>
         {message.booking ? (
           <div className="w-full">
-            <BookingChip booking={message.booking} />
+            <BookingChip
+              booking={message.booking}
+              onUseInForm={
+                canUseBooking ? () => onScheduleFromBooking(message.booking!) : undefined
+              }
+            />
           </div>
         ) : null}
         <p

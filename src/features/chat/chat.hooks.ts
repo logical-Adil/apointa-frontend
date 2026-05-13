@@ -12,6 +12,7 @@ import type {
   SendMessageInput,
   SendMessageResponse,
 } from "./chat.types";
+import { mergeChatExchangeIntoCache } from "./merge-chat-exchange";
 
 export function useChatSessions(options?: { enabled?: boolean }) {
   return useQuery<ChatSessionListResponse>({
@@ -99,16 +100,10 @@ export function useSendMessage() {
     onSuccess: (response, _input, context) => {
       qc.setQueryData<ChatMessagesResponse | undefined>(
         queryKeys.chat.messages(response.sessionId),
-        (prev) => {
-          const filtered = (prev?.items ?? []).filter(
-            (m) => !context?.tempId || m.id !== context.tempId,
-          );
-          return {
-            sessionId: response.sessionId,
-            items: [...filtered, response.userMessage, response.assistantMessage],
-            booking: response.booking ?? prev?.booking ?? null,
-          };
-        },
+        (prev) =>
+          mergeChatExchangeIntoCache(prev, response, {
+            dropTempId: context?.tempId,
+          }),
       );
       qc.invalidateQueries({ queryKey: queryKeys.chat.sessions() });
     },

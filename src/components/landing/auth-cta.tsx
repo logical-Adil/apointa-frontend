@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useAuth } from "@/features/auth";
 
 /**
- * Three auth-aware CTA clusters used on the landing page. They all share the
- * same source-of-truth (`useAuth()`); only the styling changes per location.
+ * Three auth-aware CTA clusters used on the landing page. Each calls `useAuth()`
+ * (context); the `/me` request runs once in `AuthProvider`, not per CTA.
  *
  * Behaviour:
  * - While the `/me` query is in-flight on first paint, we render the visitor
@@ -56,7 +56,7 @@ export function HeroAuthCTA() {
 
   if (isAuthenticated) {
     return (
-      <Link href="/app" className={heroPrimaryCls}>
+      <Link prefetch={false} href="/app" className={heroPrimaryCls}>
         Open your workspace
       </Link>
     );
@@ -64,10 +64,10 @@ export function HeroAuthCTA() {
 
   return (
     <>
-      <Link href="/register" className={heroPrimaryCls}>
+      <Link prefetch={false} href="/register" className={heroPrimaryCls}>
         Get started free
       </Link>
-      <Link href="/login" className={heroSecondaryCls}>
+      <Link prefetch={false} href="/login" className={heroSecondaryCls}>
         Sign in
       </Link>
     </>
@@ -79,7 +79,7 @@ export function FinalAuthCTA() {
 
   if (isAuthenticated) {
     return (
-      <Link href="/app" className={finalPrimaryCls}>
+      <Link prefetch={false} href="/app" className={finalPrimaryCls}>
         Open your workspace
       </Link>
     );
@@ -87,10 +87,10 @@ export function FinalAuthCTA() {
 
   return (
     <>
-      <Link href="/register" className={finalPrimaryCls}>
+      <Link prefetch={false} href="/register" className={finalPrimaryCls}>
         Create account
       </Link>
-      <Link href="/login" className={finalSecondaryCls}>
+      <Link prefetch={false} href="/login" className={finalSecondaryCls}>
         Sign in
       </Link>
     </>

@@ -3,6 +3,8 @@ import type { BookingExtract, BookingField } from "@/lib/app/types";
 type BookingChipProps = {
   booking: BookingExtract;
   className?: string;
+  /** When set, shows a control to open the booking drawer with this extract. */
+  onUseInForm?: () => void;
 };
 
 const FIELD_ORDER: Array<{
@@ -16,7 +18,7 @@ const FIELD_ORDER: Array<{
   { key: "notes", label: "Notes" },
 ];
 
-export function BookingChip({ booking, className }: BookingChipProps) {
+export function BookingChip({ booking, className, onUseInForm }: BookingChipProps) {
   const hasMissing = booking.missingFields.length > 0;
 
   return (
@@ -63,6 +65,18 @@ export function BookingChip({ booking, className }: BookingChipProps) {
           );
         })}
       </dl>
+      {onUseInForm ? (
+        <div className="border-t border-border-subtle px-3.5 py-2.5">
+          <button
+            type="button"
+            onClick={onUseInForm}
+            aria-label="Open booking form with these details from the chat"
+            className="w-full rounded-xl bg-accent-soft py-2.5 text-xs font-semibold text-accent ring-1 ring-accent/25 transition-colors hover:bg-accent/10"
+          >
+            Review & schedule
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
