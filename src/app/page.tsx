@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppointaLogo } from "@/components/appointa-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AnimateIn } from "@/components/animate-in";
+import { BookingChip } from "@/components/app/booking-chip";
 
 export default function Home() {
   return (
@@ -219,25 +220,16 @@ function ChatPreviewCard() {
                 <span className="font-medium text-accent">9:00 AM</span> or{" "}
                 <span className="font-medium text-accent">10:30 AM</span> open. Which works better?
               </div>
-              <div className="rounded-xl border border-border-subtle bg-bg-base/80 px-3 py-2.5">
-                <p className="font-mono text-[10px] font-medium uppercase tracking-wider text-text-muted">
-                  Extracted
-                </p>
-                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                  <div>
-                    <dt className="text-text-muted">Date</dt>
-                    <dd className="font-medium text-text-primary">Tue (next)</dd>
-                  </div>
-                  <div>
-                    <dt className="text-text-muted">Duration</dt>
-                    <dd className="font-medium text-text-primary">30 min</dd>
-                  </div>
-                  <div className="col-span-2">
-                    <dt className="text-text-muted">Window</dt>
-                    <dd className="font-medium text-text-primary">Before 11:00 AM</dd>
-                  </div>
-                </dl>
-              </div>
+              <BookingChip
+                className="mt-0"
+                booking={{
+                  service: "Intro call",
+                  date: "Tue (next)",
+                  duration: "30 min",
+                  notes: "Before 11:00 AM",
+                  missingFields: ["time"],
+                }}
+              />
             </div>
           </div>
           <div className="flex items-center gap-1.5 pl-10 pt-1">

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
+import { getToken, signIn } from "@/lib/auth";
 
 type FieldErrors = {
   email?: string;
@@ -10,11 +12,16 @@ type FieldErrors = {
 };
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (getToken()) router.replace("/app");
+  }, [router]);
 
   function validate(): FieldErrors {
     const next: FieldErrors = {};
@@ -43,12 +50,13 @@ export function LoginForm() {
 
     try {
       setSubmitting(true);
-      // TODO: integrate with /v1/auth/login once the API client is wired up.
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      setFormError("Authentication is not wired up yet. This is the UI only.");
+      // Dummy auth: any valid email + password >= 8 chars succeeds.
+      // TODO: replace with POST /v1/auth/login once the API is wired.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      signIn(email);
+      router.replace("/app");
     } catch {
       setFormError("Something went wrong. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   }

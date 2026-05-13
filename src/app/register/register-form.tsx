@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
+import { getToken, signUp } from "@/lib/auth";
 
 type FieldErrors = {
   name?: string;
@@ -41,12 +43,17 @@ const strengthText: Record<StrengthLevel, string> = {
 };
 
 export function RegisterForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (getToken()) router.replace("/app");
+  }, [router]);
 
   const strength = getStrength(password);
 
@@ -80,14 +87,13 @@ export function RegisterForm() {
 
     try {
       setSubmitting(true);
-      // TODO: wire to POST /v1/auth/register
-      await new Promise((resolve) => setTimeout(resolve, 900));
-      setFormError(
-        "Registration is not wired up yet — this is the UI prototype. Come back once the API is connected.",
-      );
+      // Dummy auth: stash token + user in localStorage and proceed.
+      // TODO: replace with POST /v1/auth/register once the API is wired.
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      signUp(name, email);
+      router.replace("/app");
     } catch {
       setFormError("Something went wrong. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   }
