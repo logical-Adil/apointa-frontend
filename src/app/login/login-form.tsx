@@ -71,7 +71,7 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-      <header>
+      <header className="animate-fade-up animation-delay-1">
         <h1 className="text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-[1.65rem]">
           Sign In
         </h1>
@@ -80,73 +80,75 @@ export function LoginForm() {
         </p>
       </header>
 
-      {formError ? (
-        <div
-          role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
-        >
-          <AlertIcon />
-          <span className="leading-snug">{formError}</span>
-        </div>
-      ) : null}
+      <div className="flex flex-col gap-5 animate-fade-up animation-delay-2">
+        {formError ? (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
+          >
+            <AlertIcon />
+            <span className="leading-snug">{formError}</span>
+          </div>
+        ) : null}
 
-      <TextField
-        leadingIcon="email"
-        label="Email"
-        type="email"
-        name="email"
-        autoComplete="email"
-        inputMode="email"
-        spellCheck={false}
-        autoCapitalize="off"
-        placeholder="name@company.com"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        error={errors.email}
-        required
-        disabled={submitting}
-      />
-
-      <TextField
-        leadingIcon="password"
-        label="Password"
-        type="password"
-        name="password"
-        autoComplete="current-password"
-        placeholder="••••••••"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        error={errors.password}
-        required
-        disabled={submitting}
-      />
-
-      <button
-        type="submit"
-        disabled={submitting || handingOff}
-        className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        <span
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-          aria-hidden
+        <TextField
+          leadingIcon="email"
+          label="Email"
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          spellCheck={false}
+          autoCapitalize="off"
+          placeholder="name@company.com"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          error={errors.email}
+          required
+          disabled={submitting}
         />
-        {submitting ? (
-          <>
-            <Spinner /> Signing in…
-          </>
-        ) : handingOff ? (
-          <>
-            <CheckIcon className="size-4" /> Opening your workspace…
-          </>
-        ) : (
-          <>
-            Sign In
-            <ArrowIcon />
-          </>
-        )}
-      </button>
 
-      <p className="pt-1 text-center text-sm text-text-secondary">
+        <TextField
+          leadingIcon="password"
+          label="Password"
+          type="password"
+          name="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          error={errors.password}
+          required
+          disabled={submitting}
+        />
+
+        <button
+          type="submit"
+          disabled={submitting || handingOff}
+          className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <span
+            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+            aria-hidden
+          />
+          {submitting ? (
+            <>
+              <Spinner /> Signing in…
+            </>
+          ) : handingOff ? (
+            <>
+              <CheckIcon className="size-4" /> Opening your workspace…
+            </>
+          ) : (
+            <>
+              Sign In
+              <ArrowIcon />
+            </>
+          )}
+        </button>
+      </div>
+
+      <p className="animate-fade-up animation-delay-3 pt-1 text-center text-sm text-text-secondary">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

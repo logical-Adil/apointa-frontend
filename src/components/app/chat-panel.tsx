@@ -36,7 +36,7 @@ export function ChatPanel({
   );
 
   return (
-    <section className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-bg-base lg:border-r lg:border-border-subtle">
+    <section className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-bg-base animate-fade-up animation-delay-1 lg:border-r lg:border-border-subtle">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-bg-elevated/90 px-3 py-2.5 backdrop-blur-md sm:gap-3 sm:px-5 sm:py-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">

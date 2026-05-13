@@ -20,7 +20,7 @@ export function SiteNavbar() {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
         aria-hidden
       />
-      <div className="mx-auto flex h-[3.5rem] max-w-[1400px] items-center justify-between gap-3 px-4 sm:h-14 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[3.5rem] max-w-[1400px] animate-fade-up items-center justify-between gap-3 px-4 sm:h-14 sm:px-6 lg:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
           <Link
             href="/"

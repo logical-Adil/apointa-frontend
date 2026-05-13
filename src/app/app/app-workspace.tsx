@@ -296,7 +296,7 @@ export function AppWorkspace() {
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-bg-base">
+    <div className="flex h-[100dvh] flex-col bg-bg-base animate-loader-enter">
       <TopBar
         user={user}
         view={view}

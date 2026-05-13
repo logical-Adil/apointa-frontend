@@ -104,7 +104,7 @@ export function AppointmentsPanel({
   }, [appointments, tab]);
 
   return (
-    <aside className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden border-border-subtle bg-bg-surface lg:border-l">
+    <aside className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden border-border-subtle bg-bg-surface animate-slide-in-right animation-delay-1 lg:border-l">
       <div className="border-b border-border-subtle bg-bg-surface/85 px-3 py-3 backdrop-blur-md sm:px-5">
         <div className="flex flex-col gap-3">
           <div className="min-w-0">

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { TextField } from "@/components/auth/text-field";
 import { useAuth, useRegister } from "@/features/auth";
 import { getErrorMessage, getFieldErrors } from "@/lib/api/errors";
+import { passwordRegisterRequirements } from "@/lib/auth/password-policy";
 
 type FieldErrors = {
   name?: string;
@@ -23,11 +24,12 @@ type Strength = {
 };
 
 function getStrength(pw: string): Strength {
+  const r = passwordRegisterRequirements(pw);
   const checks = [
-    { id: "len", label: "At least 8 characters", ok: pw.length >= 8 },
-    { id: "upper", label: "An uppercase letter", ok: /[A-Z]/.test(pw) },
-    { id: "num", label: "A number", ok: /[0-9]/.test(pw) },
-    { id: "sym", label: "A symbol", ok: /[^A-Za-z0-9]/.test(pw) },
+    { id: "len", label: "At least 8 characters", ok: r.len },
+    { id: "upper", label: "An uppercase letter", ok: r.upper },
+    { id: "num", label: "A number", ok: r.num },
+    { id: "sym", label: "A symbol", ok: r.sym },
   ];
   const score = checks.filter((c) => c.ok).length + (pw.length >= 12 ? 1 : 0);
   if (!pw) return { level: "weak", label: "", pct: 0, checks };
@@ -89,6 +91,15 @@ export function RegisterForm() {
       next.password = "Password is required.";
     } else if (password.length < 8) {
       next.password = "Password must be at least 8 characters.";
+    } else {
+      const r = passwordRegisterRequirements(password);
+      if (!r.upper) {
+        next.password = "Add an uppercase letter (A–Z).";
+      } else if (!r.num) {
+        next.password = "Add a number (0–9).";
+      } else if (!r.sym) {
+        next.password = "Add a symbol (e.g. ! @ # $).";
+      }
     }
     return next;
   }
@@ -122,7 +133,7 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-      <header>
+      <header className="animate-fade-up animation-delay-1">
         <h1 className="text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-[1.65rem]">
           Sign Up
         </h1>
@@ -131,130 +142,132 @@ export function RegisterForm() {
         </p>
       </header>
 
-      {formError ? (
-        <div
-          role="alert"
-          className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
-        >
-          <AlertIcon />
-          <span className="leading-snug">{formError}</span>
-        </div>
-      ) : null}
+      <div className="flex flex-col gap-5 animate-fade-up animation-delay-2">
+        {formError ? (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger/[0.08] px-3.5 py-3 text-sm text-danger animate-fade-in"
+          >
+            <AlertIcon />
+            <span className="leading-snug">{formError}</span>
+          </div>
+        ) : null}
 
-      <TextField
-        leadingIcon="user"
-        label="Full name"
-        type="text"
-        name="name"
-        autoComplete="name"
-        autoCapitalize="words"
-        placeholder="Ada Lovelace"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        error={errors.name}
-        required
-        disabled={submitting}
-      />
-
-      <TextField
-        leadingIcon="email"
-        label="Email"
-        type="email"
-        name="email"
-        autoComplete="email"
-        inputMode="email"
-        spellCheck={false}
-        autoCapitalize="off"
-        placeholder="name@company.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        error={errors.email}
-        required
-        disabled={submitting}
-      />
-
-      <div className="flex flex-col gap-2">
         <TextField
-          leadingIcon="password"
-          label="Password"
-          type="password"
-          name="password"
-          autoComplete="new-password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          error={errors.password}
+          leadingIcon="user"
+          label="Full name"
+          type="text"
+          name="name"
+          autoComplete="name"
+          autoCapitalize="words"
+          placeholder="Ada Lovelace"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={errors.name}
           required
           disabled={submitting}
         />
 
-        <div className="space-y-2 pt-0.5" aria-live="polite">
-          <div className="relative h-1 overflow-hidden rounded-full bg-border-subtle">
-            <span
-              className={`absolute left-0 top-0 h-full rounded-full transition-all duration-300 ${
-                password ? strengthTint[strength.level] : "bg-transparent"
-              }`}
-              style={{ width: password ? `${strength.pct}%` : "0%" }}
-            />
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span
-              className={`text-[11px] font-semibold uppercase tracking-wide ${
-                password ? strengthLabel[strength.level] : "text-text-muted"
-              }`}
-            >
-              {password ? strength.label : "Strength"}
-            </span>
-          </div>
-          <ul className="grid grid-cols-2 gap-x-3 gap-y-1">
-            {strength.checks.map((c) => (
-              <li
-                key={c.id}
-                className={`inline-flex items-center gap-1.5 text-[11px] transition-colors ${
-                  c.ok ? "text-accent" : "text-text-muted"
+        <TextField
+          leadingIcon="email"
+          label="Email"
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          spellCheck={false}
+          autoCapitalize="off"
+          placeholder="name@company.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          required
+          disabled={submitting}
+        />
+
+        <div className="flex flex-col gap-2">
+          <TextField
+            leadingIcon="password"
+            label="Password"
+            type="password"
+            name="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errors.password}
+            required
+            disabled={submitting}
+          />
+
+          <div className="space-y-2 pt-0.5" aria-live="polite">
+            <div className="relative h-1 overflow-hidden rounded-full bg-border-subtle">
+              <span
+                className={`absolute left-0 top-0 h-full rounded-full transition-all duration-300 ${
+                  password ? strengthTint[strength.level] : "bg-transparent"
+                }`}
+                style={{ width: password ? `${strength.pct}%` : "0%" }}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span
+                className={`text-[11px] font-semibold uppercase tracking-wide ${
+                  password ? strengthLabel[strength.level] : "text-text-muted"
                 }`}
               >
-                <span
-                  className={`inline-flex size-3 shrink-0 items-center justify-center rounded-full transition-colors ${
-                    c.ok ? "bg-accent-soft text-accent" : "bg-bg-surface text-text-muted"
+                {password ? strength.label : "Strength"}
+              </span>
+            </div>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1">
+              {strength.checks.map((c) => (
+                <li
+                  key={c.id}
+                  className={`inline-flex items-center gap-1.5 text-[11px] transition-colors ${
+                    c.ok ? "text-accent" : "text-text-muted"
                   }`}
-                  aria-hidden
                 >
-                  {c.ok ? <MicroCheck /> : <MicroDot />}
-                </span>
-                {c.label}
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className={`inline-flex size-3 shrink-0 items-center justify-center rounded-full transition-colors ${
+                      c.ok ? "bg-accent-soft text-accent" : "bg-bg-surface text-text-muted"
+                    }`}
+                    aria-hidden
+                  >
+                    {c.ok ? <MicroCheck /> : <MicroDot />}
+                  </span>
+                  {c.label}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
+
+        <button
+          type="submit"
+          disabled={submitting || handingOff}
+          className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <span
+            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+            aria-hidden
+          />
+          {submitting ? (
+            <>
+              <Spinner /> Creating account…
+            </>
+          ) : handingOff ? (
+            <>
+              <CheckIcon /> Opening your workspace…
+            </>
+          ) : (
+            <>
+              Sign Up
+              <ArrowIcon />
+            </>
+          )}
+        </button>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitting || handingOff}
-        className="group relative mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-sm shadow-accent/15 transition-all duration-200 hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        <span
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-          aria-hidden
-        />
-        {submitting ? (
-          <>
-            <Spinner /> Creating account…
-          </>
-        ) : handingOff ? (
-          <>
-            <CheckIcon /> Opening your workspace…
-          </>
-        ) : (
-          <>
-            Sign Up
-            <ArrowIcon />
-          </>
-        )}
-      </button>
-
-      <p className="pt-1 text-center text-sm text-text-secondary">
+      <p className="animate-fade-up animation-delay-3 pt-1 text-center text-sm text-text-secondary">
         Already have an account?{" "}
         <Link
           href="/login"

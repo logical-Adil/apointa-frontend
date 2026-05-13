@@ -5,7 +5,7 @@ export function SiteFooter() {
 
   return (
     <footer className="shrink-0 border-t border-border-subtle bg-bg-base/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-[1400px] flex-col items-center gap-2.5 px-4 py-3.5 text-center sm:flex-row sm:justify-between sm:gap-4 sm:px-6 sm:text-left lg:px-8">
+      <div className="mx-auto flex max-w-[1400px] flex-col items-center gap-2.5 px-4 py-3.5 text-center animate-fade-up animation-delay-2 sm:flex-row sm:justify-between sm:gap-4 sm:px-6 sm:text-left lg:px-8">
         <div className="flex items-center gap-2.5">
           <span
             className="inline-flex size-5 items-center justify-center rounded-md bg-accent-soft ring-1 ring-accent/25"

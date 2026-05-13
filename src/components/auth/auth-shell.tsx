@@ -41,7 +41,7 @@ function PageBackdrop() {
 
 function FormSurface({ children }: { children: ReactNode }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated/95 shadow-[0_24px_64px_-28px_rgba(15,23,42,0.28)] backdrop-blur-md">
+    <div className="animate-auth-form-enter relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated/95 shadow-[0_24px_64px_-28px_rgba(15,23,42,0.28)] backdrop-blur-md">
       {/* Fine grid inside the card */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.45]"
