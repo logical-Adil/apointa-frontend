@@ -25,7 +25,7 @@ export function MessageList({ messages, typing }: MessageListProps) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto px-4 py-6 sm:px-6"
+      className="flex min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5 sm:py-5"
       aria-live="polite"
       aria-relevant="additions"
     >
@@ -50,12 +50,12 @@ function MessageBubble({ message }: { message: Message }) {
   return (
     <div className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser ? <AssistantAvatar /> : null}
-      <div className={`flex max-w-[min(85%,42rem)] flex-col ${isUser ? "items-end" : "items-start"}`}>
+      <div className={`flex max-w-[min(100%,40rem)] flex-col sm:max-w-[min(85%,42rem)] ${isUser ? "items-end" : "items-start"}`}>
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
             isUser
               ? "rounded-br-md bg-accent text-[#0B0F13]"
-              : "rounded-bl-md border border-border-subtle bg-bg-surface text-text-primary"
+              : "rounded-bl-md border border-border-subtle bg-bg-elevated text-text-primary shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
           }`}
         >
           {message.content}
@@ -91,7 +91,7 @@ function TypingBubble() {
   return (
     <div className="flex gap-2.5">
       <AssistantAvatar />
-      <div className="inline-flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-border-subtle bg-bg-surface px-4 py-3">
+      <div className="inline-flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-border-subtle bg-bg-elevated px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
         <Dot delay="0ms" />
         <Dot delay="150ms" />
         <Dot delay="300ms" />

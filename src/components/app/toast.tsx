@@ -14,14 +14,16 @@ export function Toast({ message, onDismiss }: ToastProps) {
   }, [onDismiss]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 sm:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(1rem,env(safe-area-inset-bottom))] sm:bottom-6 sm:px-4">
       <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-border-strong bg-bg-elevated px-4 py-3 text-sm text-text-primary shadow-xl shadow-black/40 animate-fade-up">
         <span className="flex size-7 items-center justify-center rounded-lg bg-accent-soft text-accent ring-1 ring-accent/25">
           <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </span>
-        <p className="max-w-xs leading-relaxed text-text-secondary">{message}</p>
+        <p className="max-w-[min(20rem,calc(100vw-2.5rem))] text-pretty leading-relaxed text-text-secondary sm:max-w-xs">
+          {message}
+        </p>
         <button
           type="button"
           onClick={onDismiss}

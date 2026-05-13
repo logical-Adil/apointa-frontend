@@ -104,8 +104,8 @@ export function AppointmentsPanel({
   }, [appointments, tab]);
 
   return (
-    <aside className="flex h-full w-full flex-col overflow-hidden border-l border-border-subtle bg-bg-surface md:w-[420px] lg:w-[440px]">
-      <div className="border-b border-border-subtle bg-bg-surface/85 px-4 py-3 backdrop-blur-md sm:px-5">
+    <aside className="flex h-full min-h-0 w-full flex-col overflow-hidden border-border-subtle bg-bg-surface lg:border-l lg:max-w-none">
+      <div className="border-b border-border-subtle bg-bg-surface/85 px-3 py-3 backdrop-blur-md sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
@@ -157,7 +157,7 @@ export function AppointmentsPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4">
+      <div className="flex-1 overflow-y-auto px-2 py-3 sm:px-4">
         {filtered.length === 0 ? (
           <EmptyState tab={tab} onNewAppointment={onNewAppointment} />
         ) : (

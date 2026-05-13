@@ -25,7 +25,7 @@ export default function NotFound() {
       </div>
 
       <header className="relative z-10 border-b border-border-subtle/80 bg-bg-base/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-2 px-3 sm:h-[4.5rem] sm:px-6 lg:px-8">
           <Link href="/" className="rounded-xl outline-offset-4" aria-label="Appointa home">
             <AppointaLogo priority />
           </Link>
@@ -33,8 +33,8 @@ export default function NotFound() {
         </div>
       </header>
 
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-16 sm:px-6">
-        <div className="animate-fade-up w-full max-w-lg text-center">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-3 py-12 sm:px-6 sm:py-16">
+        <div className="animate-fade-up w-full max-w-lg px-1 text-center sm:px-0">
           <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-accent">
             Page not found
           </p>
@@ -46,16 +46,16 @@ export default function NotFound() {
             dashboard or sign in again.
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex w-full max-w-md flex-col gap-3 sm:mx-auto sm:flex-row sm:justify-center">
             <Link
               href="/"
-              className="inline-flex min-h-12 min-w-[10.5rem] items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-lg shadow-accent/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-accent/30"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-[#0B0F13] shadow-lg shadow-accent/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-accent/30 sm:w-auto sm:min-w-[10.5rem]"
             >
               Back to home
             </Link>
             <Link
               href="/login"
-              className="inline-flex min-h-12 min-w-[10.5rem] items-center justify-center rounded-xl border border-border-strong bg-bg-surface px-6 text-sm font-semibold text-text-primary transition-colors duration-200 hover:border-accent/35 hover:bg-bg-elevated"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border-strong bg-bg-surface px-6 text-sm font-semibold text-text-primary transition-colors duration-200 hover:border-accent/35 hover:bg-bg-elevated sm:w-auto sm:min-w-[10.5rem]"
             >
               Sign in
             </Link>

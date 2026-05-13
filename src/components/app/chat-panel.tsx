@@ -22,22 +22,27 @@ export function ChatPanel({ messages, typing, status, onSend }: ChatPanelProps) 
   );
 
   return (
-    <section className="flex h-full flex-1 flex-col overflow-hidden bg-bg-base">
-      <div className="flex items-center justify-between gap-3 border-b border-border-subtle bg-bg-base/70 px-4 py-3 backdrop-blur-md sm:px-6">
+    <section className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-bg-base lg:border-r lg:border-border-subtle">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-bg-elevated/90 px-3 py-2.5 backdrop-blur-md sm:gap-3 sm:px-5 sm:py-3">
         <div className="min-w-0">
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
             Concierge session
           </p>
-          <h1 className="mt-0.5 text-base font-semibold tracking-tight text-text-primary sm:text-lg">
+          <h1 className="mt-0.5 truncate text-base font-semibold tracking-tight text-text-primary sm:text-lg">
             Active conversation
           </h1>
         </div>
-        <ConnectionPill status={status} />
+        <div className="shrink-0">
+          <ConnectionPill status={status} />
+        </div>
       </div>
 
-      <MessageList messages={messages} typing={typing} />
-
-      <ChatComposer status={status} onSend={handleSend} />
+      <div className="flex min-h-0 flex-1 flex-col p-2 sm:p-3 lg:p-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border-subtle bg-bg-surface shadow-[0_1px_0_0_var(--border-subtle)] ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:rounded-2xl">
+          <MessageList messages={messages} typing={typing} />
+          <ChatComposer status={status} onSend={handleSend} />
+        </div>
+      </div>
     </section>
   );
 }

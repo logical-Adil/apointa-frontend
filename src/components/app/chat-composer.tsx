@@ -53,7 +53,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
     const canSend = !disabled && !overLimit && value.trim().length > 0;
 
     return (
-      <div className="border-t border-border-subtle bg-bg-base/70 px-4 py-3 backdrop-blur-md sm:px-6">
+      <div className="shrink-0 border-t border-border-subtle bg-bg-elevated/80 px-3 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-2">
           <div
             className={`flex items-end gap-2 rounded-2xl border bg-bg-surface px-3 py-2.5 transition-colors ${

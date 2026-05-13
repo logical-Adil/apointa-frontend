@@ -36,7 +36,7 @@ export function AuthShell({
       </div>
 
       <div className="grid flex-1 lg:grid-cols-[1.05fr_1fr]">
-        <section className="relative flex flex-col px-4 pb-12 pt-6 sm:px-8 sm:pt-8 lg:px-12 lg:pb-16 lg:pt-10">
+        <section className="relative flex flex-col px-3 pb-10 pt-5 sm:px-8 sm:pb-12 sm:pt-8 lg:px-12 lg:pb-16 lg:pt-10">
           <div className="flex items-center justify-between">
             <Link
               href="/"

@@ -24,7 +24,7 @@ export default function Home() {
       </div>
 
       <header className="sticky top-0 z-50 border-b border-border-subtle/80 bg-bg-base/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:h-[4.5rem] sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-2 px-3 sm:h-[4.5rem] sm:gap-3 sm:px-6 lg:px-8">
           <Link href="/" className="rounded-xl outline-offset-4" aria-label="Appointa home">
             <AppointaLogo priority />
           </Link>
@@ -53,13 +53,13 @@ export default function Home() {
       </header>
 
       <main className="flex flex-1 flex-col">
-        <section className="mx-auto w-full max-w-[1280px] px-4 pb-20 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pt-20">
-          <div className="grid gap-12 lg:grid-cols-[1fr_min(42%,480px)] lg:items-center lg:gap-16">
+        <section className="mx-auto w-full max-w-[1280px] px-3 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pt-20">
+          <div className="grid gap-10 sm:gap-12 lg:grid-cols-[1fr_min(42%,480px)] lg:items-center lg:gap-16">
             <div className="max-w-xl lg:max-w-none">
-              <p className="animate-fade-up font-mono text-xs font-medium uppercase tracking-widest text-accent sm:text-sm">
+              <p className="animate-fade-up font-mono text-[11px] font-medium uppercase tracking-widest text-accent sm:text-xs md:text-sm">
                 AI-assisted scheduling
               </p>
-              <h1 className="animate-fade-up animation-delay-1 mt-4 text-4xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
+              <h1 className="animate-fade-up animation-delay-1 mt-3 text-3xl font-semibold leading-[1.12] tracking-tight text-text-primary sm:mt-4 sm:text-4xl sm:leading-[1.1] lg:text-[3.25rem] xl:text-6xl">
                 Book appointments in a conversation.
               </h1>
               <p className="animate-fade-up animation-delay-2 mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
@@ -108,7 +108,7 @@ export default function Home() {
           className="border-t border-border-subtle bg-bg-surface/50 py-20 sm:py-24"
           aria-labelledby="features-heading"
         >
-          <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[1280px] px-3 sm:px-6 lg:px-8">
             <AnimateIn>
               <div className="max-w-2xl">
                 <h2 id="features-heading" className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
@@ -145,9 +145,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-[1280px] px-3 py-16 sm:px-6 sm:py-20 lg:px-8">
           <AnimateIn>
-            <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-8 sm:p-12 lg:flex lg:items-center lg:justify-between lg:gap-12">
+            <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-bg-elevated p-6 sm:p-10 lg:flex lg:items-center lg:justify-between lg:gap-12 lg:p-12">
               <div className="absolute right-0 top-0 h-40 w-40 translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/10 blur-2xl" aria-hidden />
               <div className="relative max-w-xl">
                 <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
@@ -158,16 +158,16 @@ export default function Home() {
                   Next.js, Express, PostgreSQL, and Mistral—wired end to end.
                 </p>
               </div>
-              <div className="relative mt-8 flex shrink-0 flex-col gap-3 sm:flex-row lg:mt-0">
+              <div className="relative mt-8 flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:w-auto lg:mt-0">
                 <Link
                   href="/register"
-                  className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl bg-accent px-6 text-center text-sm font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover"
+                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl bg-accent px-6 text-center text-sm font-semibold text-[#0B0F13] transition-colors hover:bg-accent-hover sm:w-auto sm:min-w-[11rem]"
                 >
                   Create account
                 </Link>
                 <Link
                   href="/login"
-                  className="inline-flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl border border-border-strong px-6 text-center text-sm font-semibold text-text-primary transition-colors hover:bg-bg-surface"
+                  className="inline-flex min-h-12 w-full min-w-0 items-center justify-center rounded-xl border border-border-strong px-6 text-center text-sm font-semibold text-text-primary transition-colors hover:bg-bg-surface sm:w-auto sm:min-w-[11rem]"
                 >
                   Sign in
                 </Link>
@@ -177,8 +177,8 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="mt-auto border-t border-border-subtle py-10">
-        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
+      <footer className="mt-auto border-t border-border-subtle py-8 sm:py-10">
+        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-6 px-3 sm:flex-row sm:px-6 lg:px-8">
           <AppointaLogo compact className="sm:hidden" />
           <AppointaLogo className="hidden sm:inline-flex" />
           <p className="text-center text-sm text-text-muted sm:text-right">

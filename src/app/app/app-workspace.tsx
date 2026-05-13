@@ -155,9 +155,9 @@ export function AppWorkspace() {
         appointmentsCount={upcomingCount}
       />
 
-      <main className="mx-auto flex w-full max-w-[1400px] flex-1 overflow-hidden">
+      <main className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col overflow-hidden lg:flex-row">
         <div
-          className={`flex h-full flex-1 ${view === "chat" ? "" : "hidden"} md:flex`}
+          className={`flex h-full min-h-0 w-full min-w-0 flex-1 flex-col ${view === "chat" ? "" : "hidden"} lg:flex`}
         >
           <ChatPanel
             messages={messages}
@@ -168,7 +168,7 @@ export function AppWorkspace() {
         </div>
 
         <div
-          className={`h-full w-full ${view === "appointments" ? "flex" : "hidden"} md:flex md:w-auto`}
+          className={`flex h-full min-h-0 w-full min-w-0 flex-col ${view === "appointments" ? "flex" : "hidden"} lg:flex lg:w-auto lg:max-w-[min(440px,44vw)] lg:shrink-0`}
         >
           <AppointmentsPanel
             appointments={appointments}

@@ -172,16 +172,16 @@ export function BookingDrawer({
 
       <div
         ref={panelRef}
-        className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col overflow-hidden border-l border-border-strong bg-bg-base shadow-2xl shadow-black/40 animate-slide-in-right sm:w-[28rem]"
+        className="absolute inset-y-0 right-0 flex max-h-[100dvh] w-full min-w-0 max-w-md flex-col overflow-hidden border-l border-border-strong bg-bg-base pb-[env(safe-area-inset-bottom)] shadow-2xl shadow-black/40 animate-slide-in-right sm:w-[28rem]"
       >
-        <header className="flex items-start justify-between gap-3 border-b border-border-subtle bg-bg-surface/70 px-5 py-4 backdrop-blur-md">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border-subtle bg-bg-surface/70 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-4">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
               New booking
             </p>
             <h2
               id={titleId}
-              className="mt-0.5 text-lg font-semibold tracking-tight text-text-primary"
+              className="mt-0.5 text-base font-semibold tracking-tight text-text-primary sm:text-lg"
             >
               Schedule an appointment
             </h2>
@@ -201,7 +201,7 @@ export function BookingDrawer({
           noValidate
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 overflow-y-auto px-5 py-5">
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
             <div className="flex flex-col gap-4">
               <Field label="Service" htmlForId={`${titleId}-service`} error={errors.service} required>
                 <input
@@ -291,7 +291,7 @@ export function BookingDrawer({
             </div>
           </div>
 
-          <footer className="flex items-center justify-end gap-2 border-t border-border-subtle bg-bg-surface/60 px-5 py-3 backdrop-blur-md">
+          <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border-subtle bg-bg-surface/60 px-4 py-3 backdrop-blur-md sm:px-5">
             <button
               type="button"
               onClick={onClose}

@@ -112,7 +112,7 @@ export function AppointmentDetailModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 py-6 sm:px-6 sm:py-8"
     >
       <button
         type="button"
@@ -124,9 +124,9 @@ export function AppointmentDetailModal({
 
       <div
         ref={panelRef}
-        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-strong bg-bg-elevated shadow-2xl shadow-black/40 animate-scale-in"
+        className="relative flex max-h-[min(90dvh,44rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border-strong bg-bg-elevated shadow-2xl shadow-black/40 animate-scale-in"
       >
-        <header className="flex items-start justify-between gap-3 border-b border-border-subtle px-5 py-4">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border-subtle px-4 py-3 sm:px-5 sm:py-4">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
               {appointment.service}
@@ -148,7 +148,7 @@ export function AppointmentDetailModal({
           </button>
         </header>
 
-        <div className="px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
           <div className="flex items-center justify-between gap-3">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${status.cls}`}
@@ -200,7 +200,7 @@ export function AppointmentDetailModal({
           ) : null}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-border-subtle bg-bg-surface/60 px-5 py-3">
+        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border-subtle bg-bg-surface/60 px-4 py-3 sm:px-5">
           {canRestore ? (
             <button
               ref={firstActionRef}
