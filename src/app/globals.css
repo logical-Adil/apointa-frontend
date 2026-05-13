@@ -58,6 +58,39 @@ html.light {
     background-color: var(--bg-base);
     color: var(--text-primary);
     scroll-behavior: smooth;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui,
+      -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    letter-spacing: -0.02em;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre,
+  .font-mono {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular,
+      "SF Mono", Menlo, Consolas, monospace;
+    font-feature-settings: "tnum" 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
