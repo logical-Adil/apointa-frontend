@@ -18,7 +18,9 @@ export type AppointmentListResponse = {
 };
 
 export type CreateAppointmentInput = {
+  /** Calendar title (main line on the card). */
   title: string;
+  /** Appointment type (kind of visit). */
   service: string;
   startAt: string;
   durationMin: number;

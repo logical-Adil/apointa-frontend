@@ -1,4 +1,4 @@
-import type { BookingExtract, Message } from "./types";
+import type { BookingExtract, BookingField, Message } from "./types";
 
 const BOOKING_KEYWORDS = [
   "book",
@@ -61,6 +61,17 @@ function humanizeTime(raw: string): string {
   return raw.replace(/\s+/g, "").toUpperCase();
 }
 
+function missingFieldLabels(missing: BookingField[]): string {
+  const map: Record<BookingField, string> = {
+    service: "appointment type",
+    date: "date",
+    time: "time",
+    duration: "duration",
+    notes: "notes",
+  };
+  return missing.map((m) => map[m]).join(", ");
+}
+
 export function generateAssistantReply(
   userInput: string,
   conversation: Message[],
@@ -72,7 +83,7 @@ export function generateAssistantReply(
   if (booking) {
     const missing = booking.missingFields;
     const friendlyMissing = missing.length
-      ? `I still need ${missing.join(", ")} to confirm. You can answer here or open the booking form.`
+      ? `I still need ${missingFieldLabels(missing)} to confirm. You can answer here or open the booking form.`
       : "Looks like I have everything I need — please confirm to book.";
 
     return {
@@ -86,7 +97,7 @@ export function generateAssistantReply(
   }
 
   const fallbacks = [
-    "Tell me when you'd like to book and any details (service, duration, notes). I can also reschedule existing appointments.",
+    "Tell me when you'd like to book and any details (appointment type, duration, notes). I can also reschedule existing appointments.",
     "I can help with bookings, rescheduling, and cancellations. Try something like 'Book a 30 min call tomorrow at 2 PM.'",
     "Got it. If this turns into an appointment request, just let me know the time and I'll extract the details for you.",
   ];

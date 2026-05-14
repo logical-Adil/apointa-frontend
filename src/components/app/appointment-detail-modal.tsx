@@ -62,7 +62,11 @@ export function AppointmentDetailModal({
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border-subtle px-4 py-3 sm:px-5 sm:py-4">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
-              {appointment.service}
+              Appointment type
+            </p>
+            <p className="mt-0.5 text-sm font-medium text-text-secondary">{appointment.service}</p>
+            <p className="mt-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
+              Calendar title
             </p>
             <h2
               id={titleId}

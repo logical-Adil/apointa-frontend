@@ -13,12 +13,14 @@ const FIELD_ORDER: Array<{
   key: BookingField;
   label: string;
 }> = [
-  { key: "service", label: "Service" },
+  { key: "service", label: "Appointment type" },
   { key: "date", label: "Date" },
   { key: "time", label: "Time" },
   { key: "duration", label: "Duration" },
   { key: "notes", label: "Notes" },
 ];
+
+const FIELDS_AFTER_SERVICE = FIELD_ORDER.filter((f) => f.key !== "service");
 
 export function BookingChip({
   booking,
@@ -51,7 +53,33 @@ export function BookingChip({
       </div>
 
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3 px-3.5 py-3 text-xs">
-        {FIELD_ORDER.map((field) => {
+        <div className="min-w-0">
+          <dt className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            Appointment type
+          </dt>
+          <dd
+            className={`mt-0.5 truncate text-sm font-medium ${
+              booking.missingFields.includes("service") ? "text-warning" : "text-text-primary"
+            }`}
+          >
+            {booking.missingFields.includes("service") ? "Needed" : booking.service ?? "—"}
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            Calendar title
+          </dt>
+          <dd
+            className={`mt-0.5 truncate text-sm font-medium ${
+              booking.title?.trim() ? "text-text-primary" : "text-text-muted"
+            }`}
+          >
+            {booking.title?.trim()
+              ? booking.title.trim()
+              : "Optional — empty (add in chat or when saving)"}
+          </dd>
+        </div>
+        {FIELDS_AFTER_SERVICE.map((field) => {
           const value = booking[field.key];
           const missing = booking.missingFields.includes(field.key);
           return (

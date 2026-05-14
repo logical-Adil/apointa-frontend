@@ -84,8 +84,8 @@ export function BookingDrawer({
     if (!open) return;
     const parsed = parseExtractToInputs(initial);
     const svc = initial?.service?.trim() ?? "";
-    setTitle(svc);
     setService(svc);
+    setTitle(initial?.title?.trim() ?? "");
     setDate(parsed.date);
     setTime(parsed.time);
     setDuration(parsed.duration);
@@ -105,7 +105,7 @@ export function BookingDrawer({
 
   function validate(): DraftErrors {
     const next: DraftErrors = {};
-    if (!service.trim()) next.service = "Service is required.";
+    if (!service.trim()) next.service = "Appointment type is required.";
     if (!date) next.date = "Pick a date.";
     if (!time) next.time = "Pick a time.";
     if (!duration || duration < 5) next.duration = "At least 5 minutes.";
@@ -207,14 +207,20 @@ export function BookingDrawer({
         >
           <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
             <div className="flex flex-col gap-4">
-              <Field label="Service" htmlForId={`${titleId}-service`} error={errors.service} required>
+              <Field
+                label="Appointment type"
+                htmlForId={`${titleId}-service`}
+                hint="What kind of visit or booking is this?"
+                error={errors.service}
+                required
+              >
                 <input
                   ref={firstFieldRef}
                   id={`${titleId}-service`}
                   type="text"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  placeholder="Discovery call"
+                  placeholder="e.g. Dental cleaning, Intro call, Therapy session"
                   autoComplete="off"
                   className={inputCls(Boolean(errors.service))}
                   aria-invalid={Boolean(errors.service)}
@@ -222,16 +228,16 @@ export function BookingDrawer({
               </Field>
 
               <Field
-                label="Title"
+                label="Calendar title"
                 htmlForId={`${titleId}-title`}
-                hint="Optional — shown on the appointment card."
+                hint="Optional — the main line on your appointment card. Leave blank to use the type above."
               >
                 <input
                   id={`${titleId}-title`}
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Discovery call with design team"
+                  placeholder="e.g. Cleaning with Dr. Patel · Design review with Alex"
                   autoComplete="off"
                   className={inputCls(false)}
                 />

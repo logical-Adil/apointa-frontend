@@ -145,9 +145,15 @@ function AppointmentCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            Appointment type
+          </p>
+          <p className="mt-0.5 truncate text-xs font-medium text-text-secondary">
             {appointment.service}
           </p>
-          <h3 className="mt-1 truncate text-sm font-semibold text-text-primary">
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            Calendar title
+          </p>
+          <h3 className="mt-0.5 truncate text-sm font-semibold text-text-primary">
             {appointment.title}
           </h3>
         </div>
@@ -192,7 +198,7 @@ function AppointmentCard({
       <button
         type="button"
         onClick={() => onSelect?.(appointment)}
-        aria-label={`View ${appointment.title}`}
+        aria-label={`View ${appointment.title} (${appointment.service})`}
         className={baseCls}
       >
         {content}
