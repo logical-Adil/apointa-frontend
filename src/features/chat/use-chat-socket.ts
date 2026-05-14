@@ -6,7 +6,7 @@ import { io, type Socket } from "socket.io-client";
 import type { ChatMessagesResponse, SendMessageResponse } from "@/features/chat/chat.types";
 import { mergeChatExchangeIntoCache } from "@/features/chat/merge-chat-exchange";
 import { queryKeys } from "@/lib/api/query-keys";
-import { getChatSocketUrl, getSocketIoPath } from "@/lib/env";
+import { getSocketIoPath, getSocketIoUrl } from "@/lib/env";
 import type { ConnectionStatus } from "@/lib/app/types";
 
 /**
@@ -24,10 +24,10 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
       return;
     }
 
-    const url = getChatSocketUrl();
     setStatus("connecting");
 
-    const socket: Socket = io(url, {
+    // Same-origin default: `io("/", { path })` — never `http://localhost:5000` in the browser.
+    const socket: Socket = io(getSocketIoUrl(), {
       path: getSocketIoPath(),
       withCredentials: true,
       transports: ["websocket", "polling"],
