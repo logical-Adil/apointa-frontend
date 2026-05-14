@@ -6,7 +6,7 @@ import { io, type Socket } from "socket.io-client";
 import type { ChatMessagesResponse, SendMessageResponse } from "@/features/chat/chat.types";
 import { mergeChatExchangeIntoCache } from "@/features/chat/merge-chat-exchange";
 import { queryKeys } from "@/lib/api/query-keys";
-import { getChatSocketUrl } from "@/lib/env";
+import { getChatSocketUrl, getSocketIoPath } from "@/lib/env";
 import type { ConnectionStatus } from "@/lib/app/types";
 
 /**
@@ -28,7 +28,7 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
     setStatus("connecting");
 
     const socket: Socket = io(url, {
-      path: "/socket.io",
+      path: getSocketIoPath(),
       withCredentials: true,
       transports: ["websocket", "polling"],
       autoConnect: true,

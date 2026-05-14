@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { getHomeHref } from "@/lib/env";
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
@@ -113,7 +114,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               Reload app
             </button>
             <a
-              href="/"
+              href={getHomeHref()}
               style={{
                 minHeight: "3rem",
                 minWidth: "10rem",

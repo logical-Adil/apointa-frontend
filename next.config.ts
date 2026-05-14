@@ -6,7 +6,18 @@ import { fileURLToPath } from "node:url";
 // Turbopack's root detection; pin the app root to this directory.
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
+function normalizeBasePath(raw: string | undefined): string | undefined {
+  const t = raw?.trim();
+  if (!t || t === "/") return undefined;
+  const withSlash = t.startsWith("/") ? t : `/${t}`;
+  const trimmed = withSlash.replace(/\/+$/, "");
+  return trimmed || undefined;
+}
+
+const basePath = normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
+
 const nextConfig: NextConfig = {
+  ...(basePath ? { basePath } : {}),
   turbopack: {
     root: projectRoot,
   },

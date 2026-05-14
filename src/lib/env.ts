@@ -19,6 +19,30 @@ function readApiUrl(): string {
   return "";
 }
 
+/**
+ * Next.js `basePath` (e.g. `/appointa-client`). Set `NEXT_PUBLIC_BASE_PATH` at
+ * build time to match nginx. Used for links outside the Next `<Link>` tree.
+ */
+export function getPublicBasePath(): string {
+  const raw = process.env.NEXT_PUBLIC_BASE_PATH?.trim() ?? "";
+  if (!raw || raw === "/") return "";
+  const withSlash = raw.startsWith("/") ? raw : `/${raw}`;
+  return withSlash.replace(/\/+$/, "") || "";
+}
+
+/** Home URL for raw `<a href>` (e.g. global error boundary). */
+export function getHomeHref(): string {
+  const b = getPublicBasePath();
+  return b ? `${b}/` : "/";
+}
+
+/** Engine.IO mount path (nginx may expose `/appointa-backend/socket.io`). */
+export function getSocketIoPath(): string {
+  const raw = process.env.NEXT_PUBLIC_SOCKET_IO_PATH?.trim();
+  if (raw) return raw.startsWith("/") ? raw : `/${raw}`;
+  return "/socket.io";
+}
+
 /** Used when `apiFetch` runs on the server (no relative URL base). */
 export function getServerApiUrl(): string {
   return (
@@ -34,13 +58,24 @@ export function getServerApiUrl(): string {
  * `NEXT_PUBLIC_SOCKET_URL` when needed.
  */
 export function getChatSocketUrl(): string {
-  const explicit =
-    process.env.NEXT_PUBLIC_SOCKET_URL?.trim() ||
-    process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (explicit) return explicit.replace(/\/+$/, "");
-  if (typeof window !== "undefined" && !readApiUrl()) {
+  const socketUrlOverride = process.env.NEXT_PUBLIC_SOCKET_URL?.trim();
+  if (socketUrlOverride) return socketUrlOverride.replace(/\/+$/, "");
+
+  const api = readApiUrl();
+  if (api) {
+    try {
+      return new URL(api).origin;
+    } catch {
+      return api.replace(/\/+$/, "");
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const bp = getPublicBasePath();
+    if (bp) return `${window.location.origin}${bp}`;
     return window.location.origin;
   }
+
   return DIRECT_API_FALLBACK;
 }
 
