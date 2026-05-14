@@ -36,13 +36,6 @@ export function getHomeHref(): string {
   return b ? `${b}/` : "/";
 }
 
-/** Engine.IO mount path (nginx may expose `/appointa-backend/socket.io`). */
-export function getSocketIoPath(): string {
-  const raw = process.env.NEXT_PUBLIC_SOCKET_IO_PATH?.trim();
-  if (raw) return raw.startsWith("/") ? raw : `/${raw}`;
-  return "/socket.io";
-}
-
 /** Used when `apiFetch` runs on the server (no relative URL base). */
 export function getServerApiUrl(): string {
   return (
@@ -50,50 +43,6 @@ export function getServerApiUrl(): string {
     process.env.BACKEND_ORIGIN?.trim().replace(/\/+$/, "") ||
     DIRECT_API_FALLBACK
   );
-}
-
-/**
- * First argument to `socket.io-client`'s `io()`.
- *
- * Use `"/"` for same-origin (matches `io("/", { path: "/socket.io" })`) so the
- * browser never hardcodes `http://localhost:5000`. Next dev rewrites
- * `/socket.io` → `BACKEND_ORIGIN`; production nginx mounts the engine under
- * `NEXT_PUBLIC_SOCKET_IO_PATH` (still same page origin).
- *
- * Only returns a full `https?://host:port` when the API is truly on another
- * origin, or when `NEXT_PUBLIC_SOCKET_URL` is set.
- */
-export function getSocketIoUrl(): string {
-  const socketUrlOverride = process.env.NEXT_PUBLIC_SOCKET_URL?.trim();
-  if (socketUrlOverride) return socketUrlOverride.replace(/\/+$/, "");
-
-  const api = readApiUrl();
-  if (!api) return "/";
-
-  let apiOrigin: string;
-  try {
-    apiOrigin = new URL(api).origin;
-  } catch {
-    return api.replace(/\/+$/, "");
-  }
-
-  if (typeof window === "undefined") return "/";
-
-  if (apiOrigin === window.location.origin) return "/";
-
-  // Local dev: SPA on :3000 with explicit API URL to :5000 — still use same-origin
-  // `/socket.io` so Next rewrites apply and cookies stay first-party.
-  const page = window.location;
-  const apiHost = new URL(apiOrigin).hostname;
-  const pageHost = page.hostname;
-  const localhostish =
-    (pageHost === "localhost" || pageHost === "127.0.0.1") &&
-    (apiHost === "localhost" || apiHost === "127.0.0.1");
-  if (localhostish && page.port === "3000" && new URL(apiOrigin).port === "5000") {
-    return "/";
-  }
-
-  return apiOrigin;
 }
 
 export const env = {

@@ -126,7 +126,7 @@ cp .env.example .env.local
 | Mode | Configuration |
 |------|----------------|
 | **Default (local dev)** | Leave `NEXT_PUBLIC_API_URL` unset. Rewrites send `/v1/*` and `/socket.io/*` to `BACKEND_ORIGIN` (default `http://localhost:5000`). |
-| **Direct API host** | Set `NEXT_PUBLIC_API_URL` and, if needed, `NEXT_PUBLIC_SOCKET_URL`; understand CORS and cookies — see `.env.example`. |
+| **Direct API host** | Set `NEXT_PUBLIC_API_URL`; chat uses same-origin `/socket.io` (rewrites in dev, nginx in prod). Mind CORS and cookies — see `.env.example`. |
 
 ### Dev server
 

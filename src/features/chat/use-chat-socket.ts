@@ -6,7 +6,6 @@ import { io, type Socket } from "socket.io-client";
 import type { ChatMessagesResponse, SendMessageResponse } from "@/features/chat/chat.types";
 import { mergeChatExchangeIntoCache } from "@/features/chat/merge-chat-exchange";
 import { queryKeys } from "@/lib/api/query-keys";
-import { getSocketIoPath, getSocketIoUrl } from "@/lib/env";
 import type { ConnectionStatus } from "@/lib/app/types";
 
 /**
@@ -26,9 +25,10 @@ export function useChatSocket(isAuthenticated: boolean): ConnectionStatus {
 
     setStatus("connecting");
 
-    // Same-origin default: `io("/", { path })` — never `http://localhost:5000` in the browser.
-    const socket: Socket = io(getSocketIoUrl(), {
-      path: getSocketIoPath(),
+    // Same page origin + `/socket.io`: dev uses `next.config.ts` rewrites to Express;
+    // production nginx should proxy that path to the backend (no separate socket URL logic).
+    const socket: Socket = io("/", {
+      path: "/socket.io",
       withCredentials: true,
       transports: ["websocket", "polling"],
       autoConnect: true,
